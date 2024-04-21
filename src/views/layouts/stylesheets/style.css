@@ -1,0 +1,12 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+.conocenos-page {
+  background-color: rgba(158, 143, 114, 0.5); /* Color de fondo con transparencia */
+  /* Otros estilos para la página "Conócenos" */
+}
