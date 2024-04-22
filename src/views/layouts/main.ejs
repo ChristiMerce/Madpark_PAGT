@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Nodejs Passport Local</title>
+  <title>MADPARK</title>
   <link rel="stylesheet" href="https://bootswatch.com/5/materia/bootstrap.min.css">
 </head>
 <body>
   <!--- Barra de Navegación-->>
-  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #87b87bd0;">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #96b0d4;">
     <div class="container">
       <a class="navbar-brand" href="#"><img src="/images/MADPARK.png" alt="LogOOOO" height="55" class="rounded-circle"></a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,36 +17,33 @@
         <ul class="navbar-nav ms-auto">
           <% if (user){ %>
             <li class="nav-item">
-              <a class="nav-link" href="/inicio">Inicio</a>
+              <a class="nav-link" href="/inicio" style="color: #24566B;">Inicio</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/conocenos">Conocenos</a>
+              <a class="nav-link" href="/conocenos" style="color: #24566B;">Conocenos</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/Mapa">Mapa</a>
+              <a class="nav-link" href="/Mapa" style="color: #24566B;">Mapa</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="/perfil">profile</a>
+              <a class="nav-link active" aria-current="page" href="/profile" style="color: #24566B;">Perfil</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/logout">Exit</a>
+              <a class="nav-link" href="/logout" style="color: #24566B;">Cerrar sesión</a>
             </li>
 
             <%  } else {%>
               <li class="nav-item">
-                <a class="nav-link" href="/inicio">Inicio</a>
+                <a class="nav-link" href="/inicio" style="color: #24566B;">Inicio</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/mapa">Mapa</a>
+                <a class="nav-link" href="/mapa" style="color: #24566B;">Mapa</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/conocenos">Conocenos</a>
+                <a class="nav-link" href="/conocenos" style="color: #24566B;">Conócenos</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/signin">Signin</a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/signup">signup</a>
+                <a class="nav-link" href="/registro" style="color: #24566B;">Registro</a>
               </li>
               <% }%>
           
@@ -57,11 +54,11 @@
   </nav>
 
   <% if (!user) { %>
-  <a href="/signin">Signin</a>
-  <a href="/signup">Signup</a>
+  <a href="/signin" style="color: #24566B;">Iniciar Sesión</a>
+  <a href="/registro" style="color: #24566B;">Registro</a>
   <% } else { %>
-  <a href="/logout">Logout</a>
-  <a href="/profile">Profle</a>
+  <a href="/logout" style="color: #24566B;">Cerrar sesión</a>
+  <a href="/profile" style="color: #24566B;">Perfil</a>
   <% } %>
 
   

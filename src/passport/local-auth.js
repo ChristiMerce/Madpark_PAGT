@@ -17,24 +17,33 @@ passport.serializeUser((user, done) => {
 
 
 //funcion que define que ahcaer con los datos del cliente
-passport.use('local-signup', new LocalStrategy({
-    usernameField: 'email',
-    passwordField: 'password',
-    passReqToCallback: true
-  }, async (req, email, password, done) => {
-    const user = await User.findOne({'email': email})
-    console.log(user)
-    if(user) {
-      return done(null, false, req.flash('signupMessage', 'The Email is already Taken.'));
+passport.use('local-registro', new LocalStrategy({
+  usernameField: 'email', // Asigna el campo 'email' como el campo de nombre de usuario
+  passwordField: 'password', // Asigna el campo 'password' como el campo de contraseña
+  passReqToCallback: true
+}, async (req, email, password, done) => {
+  const { inputName, inputSurename, inputEmail, inputPassword,inputProvince} = req.body; // Asume que estos son los campos en tu formulario
+  
+  try {
+    const user = await User.findOne({ email: email });
+    if (user) {
+      return done(null, false, req.flash('signupMessage', 'El correo electrónico ya está en uso.'));
     } else {
-      const newUser = new User();
-      newUser.email = email;
-      newUser.password = newUser.encryptPassword(password);
-    console.log(newUser)
+      const newUser = new User({
+        email: inputEmail,
+        password: newUser.encryptPassword(inputPassword),
+        name: inputName,
+        surename: inputSurename,
+        province: inputProvince
+      });
       await newUser.save();
       done(null, newUser);
     }
-  }));
+  } catch (err) {
+    return done(err);
+  }
+}));
+
 
 
 //login

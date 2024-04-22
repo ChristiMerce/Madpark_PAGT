@@ -8,13 +8,13 @@ router.get('/', (req, res, next)=>{
     res.render('index');
 
 });
-router.get('/signup', (req, res, next) => {
-    res.render('signup');
+router.get('/registro', (req, res, next) => {
+    res.render('registro');
   });
   
-  router.post('/signup', passport.authenticate('local-signup', {
+  router.post('/registro', passport.authenticate('local-signup', {
     successRedirect: '/profile',
-    failureRedirect: '/signup',
+    failureRedirect: '/registro',
     failureFlash: true
   })); 
 
