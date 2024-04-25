@@ -5,7 +5,12 @@ const { Schema } = mongoose;
 
 const userSchema = new Schema({
   email: String,
-  password: String
+  password: String,
+  Name: String,
+  surename: String,
+  address:String,
+  comunidad:String,
+  Provincia:String
 });
 
 //cifrado de la contraseña(hash)

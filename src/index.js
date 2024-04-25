@@ -21,7 +21,7 @@ app.use(express.static(path.join(__dirname, 'views', 'layouts')));
 
 // middlewares
 app.use(morgan('dev'));
-app.use(express.urlencoded({extended: false}));
+app.use(express.urlencoded({extended: true}));
 app.use(session({
   secret: 'mysecretsession',
   resave: false,

@@ -17,33 +17,41 @@ passport.serializeUser((user, done) => {
 
 
 //funcion que define que ahcaer con los datos del cliente
-passport.use('local-registro', new LocalStrategy({
-  usernameField: 'email', // Asigna el campo 'email' como el campo de nombre de usuario
-  passwordField: 'password', // Asigna el campo 'password' como el campo de contraseña
-  passReqToCallback: true
-}, async (req, email, password, done) => {
-  const { inputName, inputSurename, inputEmail, inputPassword,inputProvince} = req.body; // Asume que estos son los campos en tu formulario
-  
+passport.use('local-signup', new LocalStrategy({
+    usernameField: 'email',
+    passwordField: 'password',
+    passReqToCallback: true
+  }, async (req, email, password, done) => {
+    const { Name ,surename, address,comunidad,Provincia} = req.body;
+
   try {
-    const user = await User.findOne({ email: email });
-    if (user) {
-      return done(null, false, req.flash('signupMessage', 'El correo electrónico ya está en uso.'));
+    // Verifica si ya existe un usuario con el mismo correo electrónico
+    const existingUser = await User.findOne({ email });
+
+    // Si el usuario ya existe, devuelve un mensaje de error
+    if (existingUser) {
+      return done(null, false, req.flash('signupMessage', 'The email is already taken.'));
     } else {
-      const newUser = new User({
-        email: inputEmail,
-        password: newUser.encryptPassword(inputPassword),
-        name: inputName,
-        surename: inputSurename,
-        province: inputProvince
-      });
+      // Si el usuario no existe, crea uno nuevo con los datos proporcionados
+      const newUser = new User();
+      newUser.email = email;
+      newUser.Name = Name; 
+      newUser.surename=surename;
+      newUser.address=address;
+      newUser.comunidad=comunidad;
+      newUser.Provincia=Provincia;// Asigna el fullName al nuevo usuario
+      newUser.password = newUser.encryptPassword(password);
+
+      // Guarda el nuevo usuario en la base de datos
       await newUser.save();
-      done(null, newUser);
+
+      // Devuelve el nuevo usuario
+      return done(null, newUser);
     }
-  } catch (err) {
-    return done(err);
+  } catch (error) {
+    return done(error);
   }
 }));
-
 
 
 //login
