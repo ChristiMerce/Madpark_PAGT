@@ -4,10 +4,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js">
-    
-</script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+      <title>Routing app</title>
+      
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+      <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+¡
+
 	<style>
         #map { 
             width: 100%;
@@ -16,22 +18,56 @@
             margin-top: 200px; 
          }
 	</style>
+
+
+
 </head>
 	<body>
-		<div id="map">
-            <script>
-                var map = L.map('map').
-                   setView([41.66, -4.72],
-                   15);
-                   L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-                    maxZoom: 18
-                    }).addTo(map);
-                    L.control.scale().addTo(map);
-                    L.marker([41.66, -4.71],{draggable: true}).addTo(map);
-              </script>
-              
-        </div>
+		<div id="map" class="map"> </div>
 	</body>
 </html>
+
+
+<!-- leaflet js cdn-->
+<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+<!-- leaflet roputing machine js-->
+<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  
+
+<script>
+
+      var map =L.map('map').setView([28.23,83.99],11);
+
+      var tileLayer=L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+            maxZoom: 18
+            }).addTo(map);
+
+      var marker= L.marker([28.23,83.99]).addTo(map);
+           //map click event
+      map.on('click', function(e){
+            console.log(e)
+            var secondMarker=L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+
+            L.Routing.control({
+                  waypoints: [
+                    L.latLng(28.23,83.99),
+                    L.latLng(e.latlng.lat, e.latlng.lng)
+                  ]
+                }).addTo(map);
+       });
+
+/*
+      L.Routing.control({
+            waypoints: [
+              L.latLng(57.74, 11.94),
+              L.latLng(57.6792, 11.949)
+            ]
+          }).addTo(map);
+*/
+
+      
+
+      </script>
+  
 

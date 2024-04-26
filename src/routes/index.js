@@ -5,7 +5,7 @@ const router = express.Router();
 
 
 router.get('/', (req, res, next)=>{
-    res.render('index');
+    res.render('inicio');
 
 });
 router.get('/signup', (req, res, next) => {
