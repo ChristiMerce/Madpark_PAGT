@@ -6,7 +6,7 @@ const router = express.Router();
 const Parking =require('../models/parking');
 
 
-router.get('/', async (req, res, next) => {
+router.get('/parkings', async (req, res, next) => {
   try {
     const paaaaaa = await Parking.find();
     res.json(paaaaaa); // Send parking data as JSON response
@@ -34,6 +34,7 @@ router.get('/conocenos', (req, res, next) => {
   });
 
   router.get('/Mapa', (req, res, next) => {
+    
     res.render('Mapa');
   });
 

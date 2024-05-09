@@ -5,10 +5,10 @@
 <html>
 <head>
       <title>Routing app</title>
-      
+
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
       <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
-¡
+      
 
 	<style>
         #map { 
@@ -18,9 +18,6 @@
             margin-top: 200px; 
          }
 	</style>
-
-
-
 </head>
 	<body>
 		<div id="map" class="map"> </div>
@@ -36,14 +33,14 @@
 
 <script>
 
-      var map =L.map('map').setView([28.23,83.99],11);
+      var map =L.map('map').setView([40.4167, -3.7038], 11);
 
       var tileLayer=L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
             maxZoom: 18
             }).addTo(map);
 
-      var marker= L.marker([28.23,83.99]).addTo(map);
+      
            //map click event
       map.on('click', function(e){
             console.log(e)
@@ -51,12 +48,40 @@
 
             L.Routing.control({
                   waypoints: [
-                    L.latLng(28.23,83.99),
-                    L.latLng(e.latlng.lat, e.latlng.lng)
+                    
+                    L.latLng(e.latlng.lat, e.latlng.lng)//coord del ausuario
                   ]
                 }).addTo(map);
        });
+       // Agregar marcador con la ubicación del usuario
+       if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var userIcon = L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/leaflet-maps-course/resources/main/markers/icons/custom/drink_water.png',
+                    iconSize: [38, 38],
+                    iconAnchor: [19, 38],
+                    popupAnchor: [0, -38]
+                });
+                var userMarker = L.marker([position.coords.latitude, position.coords.longitude], { icon: userIcon }).addTo(map);
+                userMarker.bindPopup("Tu ubicación").openPopup();
+            });
+        }
 
+
+        // map click event
+        map.on('click', function(e) {
+            console.log(e);
+            var secondMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+
+            L.Routing.control({
+                waypoints: [
+                     // deberían ser las coordenadas del usuario
+                    L.latLng(e.latlng.lat, e.latlng.lng)
+                ]
+            }).addTo(map);
+        });
+    
+    // Llama la función para obtener los marcadores al iniciar el map
 /*
       L.Routing.control({
             waypoints: [
@@ -65,9 +90,9 @@
             ]
           }).addTo(map);
 */
+      </script>
+
 
       
-
-      </script>
   
 
