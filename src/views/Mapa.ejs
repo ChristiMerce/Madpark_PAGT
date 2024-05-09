@@ -5,11 +5,8 @@
 <html>
 <head>
       <title>Routing app</title>
-
       <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
       <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
-      
-
 	<style>
         #map { 
             width: 100%;
@@ -17,82 +14,91 @@
             box-shadow: 5px 5px 5px #888;
             margin-top: 200px; 
          }
-	</style>
+	</style>   
 </head>
-	<body>
-		<div id="map" class="map"> </div>
-	</body>
-</html>
 
-
-<!-- leaflet js cdn-->
-<script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
-<!-- leaflet roputing machine js-->
-<script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+<body>
+		
+      <div id="map" class="map"> </div>
+            <!-- leaflet js cdn-->
+            <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+            <!-- leaflet roputing machine js-->
+            <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
   
 
-<script>
+      <script>
 
-      var map =L.map('map').setView([40.4167, -3.7038], 11);
+            var map =L.map('map').setView([40.4167, -3.7038], 11);
 
-      var tileLayer=L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-            maxZoom: 18
-            }).addTo(map);
+            var tileLayer=L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+                  maxZoom: 18
+                  }).addTo(map);
 
+            /*
+            //map click event
+            map.on('click', function(e){
+                  console.log(e)
+                  var secondMarker=L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+
+                  L.Routing.control({
+                        waypoints: [
+                        
+                        L.latLng(e.latlng.lat, e.latlng.lng)//coord del ausuario
+                        ]
+                  }).addTo(map);
+            });*/
+
+            // Agregar marcador con la ubicación del usuario
+            if ("geolocation" in navigator) {
+                  navigator.geolocation.getCurrentPosition(function(position) {
+                  var userIcon = L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
+                        iconSize: [38, 38],
+                        iconAnchor: [19, 38],
+                        popupAnchor: [0, -38]
+                  });
+                  var userMarker = L.marker([position.coords.latitude, position.coords.longitude], { icon: userIcon }).addTo(map);
+                  userMarker.bindPopup("Tu ubicación").openPopup();
+                  });
+            }
+            // Obtener los parkings desde el servidor
+            fetch('/parkings')
+            .then(response => response.json())
+            .then(parkings => {
+                  // Añadir marcadores para cada parking
+                  parkings.forEach(parking => {
+                        L.marker([parking.LATITUD, parking.LONGITUD]).addTo(map);
+                  });
+            })
+            .catch(error => console.error('Error al obtener los parkings:', error));
+
+            
+
+      /*
+            // map click event
+            map.on('click', function(e) {
+                  console.log(e);
+                  var secondMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+
+                  L.Routing.control({
+                  waypoints: [
+                        // deberían ser las coordenadas del usuario
+                        L.latLng(e.latlng.lat, e.latlng.lng)
+                  ]
+                  }).addTo(map);
+            });*/
       
-           //map click event
-      map.on('click', function(e){
-            console.log(e)
-            var secondMarker=L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-
+      // Llama la función para obtener los marcadores al iniciar el map
+      /*
             L.Routing.control({
                   waypoints: [
-                    
-                    L.latLng(e.latlng.lat, e.latlng.lng)//coord del ausuario
+                  L.latLng(57.74, 11.94),
+                  L.latLng(57.6792, 11.949)
                   ]
-                }).addTo(map);
-       });
-       // Agregar marcador con la ubicación del usuario
-       if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                var userIcon = L.icon({
-                    iconUrl: 'https://raw.githubusercontent.com/leaflet-maps-course/resources/main/markers/icons/custom/drink_water.png',
-                    iconSize: [38, 38],
-                    iconAnchor: [19, 38],
-                    popupAnchor: [0, -38]
-                });
-                var userMarker = L.marker([position.coords.latitude, position.coords.longitude], { icon: userIcon }).addTo(map);
-                userMarker.bindPopup("Tu ubicación").openPopup();
-            });
-        }
-
-
-        // map click event
-        map.on('click', function(e) {
-            console.log(e);
-            var secondMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-
-            L.Routing.control({
-                waypoints: [
-                     // deberían ser las coordenadas del usuario
-                    L.latLng(e.latlng.lat, e.latlng.lng)
-                ]
             }).addTo(map);
-        });
-    
-    // Llama la función para obtener los marcadores al iniciar el map
-/*
-      L.Routing.control({
-            waypoints: [
-              L.latLng(57.74, 11.94),
-              L.latLng(57.6792, 11.949)
-            ]
-          }).addTo(map);
-*/
-      </script>
-
-
-      
-  
+      */
+            </script> 
+</body>
+</html>
 

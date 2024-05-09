@@ -6,6 +6,7 @@ const passport = require('passport');
 const session = require('express-session');
 const flash = require('connect-flash');
 const Parking =require('./models/parking');
+const RutaParking=require('./routes/index')
 
 // initializations
 const app = express();
@@ -15,7 +16,7 @@ require('./passport/local-auth');
 
 
 // settings
-app.set('port', process.env.PORT || 8080);
+app.set('port', process.env.PORT || 3002);
 app.set('views', path.join(__dirname, 'views'))
 app.engine('ejs', engine);
 app.set('view engine', 'ejs');
@@ -43,6 +44,8 @@ app.use((req, res, next) => {
     next();
   });
 
+  
+  app.use('/parkings', RutaParking);
 
 // routes
 app.use('/', require('./routes/index'));

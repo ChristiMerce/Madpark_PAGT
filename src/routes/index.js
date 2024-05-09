@@ -8,8 +8,8 @@ const Parking =require('../models/parking');
 
 router.get('/parkings', async (req, res, next) => {
   try {
-    const paaaaaa = await Parking.find();
-    res.json(paaaaaa); // Send parking data as JSON response
+    const parkings = await Parking.find();
+    res.json(parkings); // Send parking data as JSON response
   } catch (error) {
     console.error('Error fetching parking data:', error);
     res.status(500).json({ message: 'Error fetching parking data' }); // Handle errors gracefully
