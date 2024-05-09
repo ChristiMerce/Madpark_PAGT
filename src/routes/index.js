@@ -1,12 +1,19 @@
 //almacena las rutas principales
 const express = require ('express');
 const passport = require('passport');
+const { Parkingmodel } = require('../database');
 const router = express.Router();
+const Parking =require('../models/parking');
 
 
-router.get('/', (req, res, next)=>{
-    res.render('inicio');
-
+router.get('/', async (req, res, next) => {
+  try {
+    const paaaaaa = await Parking.find();
+    res.json(paaaaaa); // Send parking data as JSON response
+  } catch (error) {
+    console.error('Error fetching parking data:', error);
+    res.status(500).json({ message: 'Error fetching parking data' }); // Handle errors gracefully
+  }
 });
 router.get('/signup', (req, res, next) => {
     res.render('signup');

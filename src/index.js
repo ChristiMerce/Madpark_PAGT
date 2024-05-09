@@ -5,11 +5,14 @@ const morgan = require('morgan');
 const passport = require('passport');
 const session = require('express-session');
 const flash = require('connect-flash');
+const Parking =require('./models/parking');
 
 // initializations
 const app = express();
 require('./database');
 require('./passport/local-auth');
+
+
 
 // settings
 app.set('port', process.env.PORT || 8080);
@@ -39,7 +42,6 @@ app.use((req, res, next) => {
     console.log(app.locals)
     next();
   });
-
 
 
 // routes

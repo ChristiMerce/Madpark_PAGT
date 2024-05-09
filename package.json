@@ -17,6 +17,7 @@
     "express": "^4.19.2",
     "express-session": "^1.18.0",
     "leaflet-routing-machine": "^3.2.12",
+    "mongodb": "^6.6.0",
     "mongoose": "^8.3.1",
     "morgan": "^1.10.0",
     "passport": "^0.7.0",
