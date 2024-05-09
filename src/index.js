@@ -23,6 +23,7 @@ app.set('view engine', 'ejs');
 
 app.use(express.static(path.join(__dirname, 'views', 'layouts')));
 
+
 // middlewares
 app.use(morgan('dev'));
 app.use(express.urlencoded({extended: true}));
