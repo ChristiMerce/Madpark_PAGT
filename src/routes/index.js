@@ -33,9 +33,15 @@ router.get('/conocenos', (req, res, next) => {
     res.render('conocenos');
   });
 
+
   router.get('/Mapa', (req, res, next) => {
+    // Verificar si el usuario está autenticado
+    const isAuthenticated = req.isAuthenticated();
+    // Renderizar la página del mapa con datos condicionales
+    res.render('Mapa', { isAuthenticated });
+
     
-    res.render('Mapa');
+    
   });
 
   router.get('/inicio', (req, res, next) => {
@@ -62,7 +68,7 @@ router.get('/profile',isAuthenticated, (req, res, next) => {
       if (err) { // Handle potential errors during logout
         return next(err); // Pass the error to the error handler middleware
       }
-      res.redirect('/'); // Redirect to the homepage after successful logout
+      res.redirect('/inicio'); // Redirect to the homepage after successful logout
     });
   });
 
