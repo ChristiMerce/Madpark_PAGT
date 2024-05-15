@@ -1,3 +1,5 @@
+<%- layout('layouts/main')%>
+
 
 <!DOCTYPE html>
 <html>
@@ -123,6 +125,38 @@
                 filtroBusqueda.style.display = "none";
             }
         }
+
+      //si esta autenticado puede añadir su ubicacion
+        <% if (isAuthenticated) { %>
+            // Agregar marcador con la ubicación del usuario
+            if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                  var userIcon = L.icon({
+                        iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
+                        iconSize: [38, 38],
+                        iconAnchor: [19, 38],
+                        popupAnchor: [0, -38]
+                  });
+                  var userMarker = L.marker([position.coords.latitude, position.coords.longitude], { icon: userIcon }).addTo(map);
+                  userMarker.bindPopup("Tu ubicación").openPopup();
+            });
+            }
+      <% } %>
+  
+      // Obtener los parkings desde el servidor
+      fetch('/parkings')
+          .then(response => response.json())
+          .then(parkings => {
+              // Añadir marcadores para cada parking
+              parkings.forEach(parking => {
+                  L.marker([parking.LATITUD, parking.LONGITUD]).addTo(map);
+              });
+          })
+          .catch(error => console.error('Error al obtener los parkings:', error));
+
+
+
+
 
         // Evento de clic en el mapa para agregar marcadores y ruta
         map.on('click', function(e) {
