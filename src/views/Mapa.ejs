@@ -71,7 +71,7 @@
         .search-button:hover {
             background-color: #d3a2d8;
         }
-        #clearMarkers {
+        #clearMarkersss {
             position: absolute;
             top: 10px;
             right: 10px;
@@ -82,6 +82,23 @@
             cursor: pointer;
             font-size: 16px;
         }
+        #clearMarkers {
+            position: absolute;
+            top: 260px; /* Ajusta este valor para mover el botón */
+            right: 20px; /* Manténlo alineado con el botón de búsqueda */
+            z-index: 1000;
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(99, 98, 98, 0.1);
+        }
+
+        #boton-borrar-marcadores:hover {
+            background-color: #ff6666;
+        }
     </style>
 </head>
 <body>
@@ -89,6 +106,8 @@
 
     <!-- Botón de búsqueda -->
     <button class="search-button" onclick="toggleSearch()">🔍</button>
+     <!-- Botón para borrar marcadores -->
+     <button id="clearMarkers" onclick="clearUserMarkers()">🗑️</button>
 
     <!-- Filtro de búsqueda por dirección -->
     <div class="filtro-busqueda" id="filtroBusqueda">
@@ -136,6 +155,20 @@
             }
         }
 
+
+        // Función para borrar los marcadores del usuario
+        function clearUserMarkers() {
+            userMarkers.forEach(function(marker) {
+                map.removeLayer(marker);
+            });
+            userMarkers = [];
+
+            if (routingControl) {
+                map.removeControl(routingControl);
+                routingControl = null;
+            }
+        }
+
       //si esta autenticado puede añadir su ubicacion
         <% if (isAuthenticated) { %>
             // Agregar marcador con la ubicación del usuario
@@ -170,14 +203,19 @@
           .catch(error => console.error('Error al obtener los parkings:', error));
 
 
+          const options ={
+                  draggable:true
+            }
 
 
 
-        // Evento de clic en el mapa para agregar marcadores y ruta
-        // Evento de clic en el mapa para agregar marcadores y ruta
+
+
+        // Evento de clic en el mapa para agresgar marcadores y ruta
         map.on('click', function(e) {
+            
             if (userCoordinates) {
-                var secondMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+                var secondMarker = L.marker([e.latlng.lat, e.latlng.lng],options).addTo(map);
                 
                 L.Routing.control({
                     waypoints: [
@@ -186,9 +224,19 @@
                     ]
                 }).addTo(map);
             } else {
+                  
                 alert("Ubicación del usuario no disponible");
             }
         });
+
+        
+
+
+
+
+      
+
+              
     </script>
 </body>
 </html>
