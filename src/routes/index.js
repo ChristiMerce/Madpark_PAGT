@@ -32,6 +32,14 @@ router.get('/signin', (req, res, next) => {
 router.get('/conocenos', (req, res, next) => {
     res.render('conocenos');
   });
+  router.get('/manual', (req, res, next) => {
+    res.render('manual');
+  });
+
+  router.get('/faqs', (req, res, next) => {
+    res.render('faqs');
+  });
+
 
 
   router.get('/Mapa', (req, res, next) => {
