@@ -1,6 +1,5 @@
 <%- layout('layouts/main')%>
 
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -13,7 +12,7 @@
             width: 100%;
             height: 580px;
             box-shadow: 5px 5px 5px #888;
-            margin-top: 20px; 
+            margin-top: 150px; 
         }
 
         .filtro-busqueda {
@@ -57,7 +56,7 @@
 
         .search-button {
             position: absolute;
-            top: 20px;
+            top: 200px;
             right: 20px;
             z-index: 1000;
             background-color: #ce9bd4;
@@ -71,6 +70,17 @@
 
         .search-button:hover {
             background-color: #d3a2d8;
+        }
+        #clearMarkers {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -130,17 +140,22 @@
         <% if (isAuthenticated) { %>
             // Agregar marcador con la ubicación del usuario
             if ("geolocation" in navigator) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                  var userIcon = L.icon({
-                        iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
-                        iconSize: [38, 38],
-                        iconAnchor: [19, 38],
-                        popupAnchor: [0, -38]
+                  navigator.geolocation.getCurrentPosition(function(position) {
+                      userCoordinates = [position.coords.latitude, position.coords.longitude];
+                      
+                      var userIcon = L.icon({
+                          iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
+                          iconSize: [38, 38],
+                          iconAnchor: [19, 38],
+                          popupAnchor: [0, -38]
+                      });
+                      
+                      var userMarker = L.marker(userCoordinates, { icon: userIcon }).addTo(map);
+                      userMarker.bindPopup("Tu ubicación").openPopup();
                   });
-                  var userMarker = L.marker([position.coords.latitude, position.coords.longitude], { icon: userIcon }).addTo(map);
-                  userMarker.bindPopup("Tu ubicación").openPopup();
-            });
-            }
+              } else {
+                  alert("Geolocalización no disponible");
+              }
       <% } %>
   
       // Obtener los parkings desde el servidor
@@ -159,15 +174,20 @@
 
 
         // Evento de clic en el mapa para agregar marcadores y ruta
+        // Evento de clic en el mapa para agregar marcadores y ruta
         map.on('click', function(e) {
-            var secondMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
-
-            L.Routing.control({
-                waypoints: [
-                    L.latLng(40.416775, -3.70379), // Madrid
-                    L.latLng(e.latlng.lat, e.latlng.lng)
-                ]
-            }).addTo(map);
+            if (userCoordinates) {
+                var secondMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+                
+                L.Routing.control({
+                    waypoints: [
+                        L.latLng(userCoordinates[0], userCoordinates[1]), // Coordenadas del usuario
+                        L.latLng(e.latlng.lat, e.latlng.lng)
+                    ]
+                }).addTo(map);
+            } else {
+                alert("Ubicación del usuario no disponible");
+            }
         });
     </script>
 </body>
