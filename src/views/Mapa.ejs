@@ -42,7 +42,7 @@
         }
 
         .filtro-busqueda button {
-            background-color: #ce9bd4;
+            background-color: #b4aeb4;
             color: #fff;
             border: none;
             padding: 8px 15px;
@@ -59,7 +59,7 @@
             top: 200px;
             right: 20px;
             z-index: 1000;
-            background-color: #ce9bd4;
+            background-color: #b4aeb4;
             color: #fff;
             border: none;
             padding: 10px 20px;
@@ -87,7 +87,7 @@
             top: 260px; /* Ajusta este valor para mover el botón */
             right: 20px; /* Manténlo alineado con el botón de búsqueda */
             z-index: 1000;
-            background-color: #ff4d4d;
+            background-color: #b4aeb4;
             color: #fff;
             border: none;
             padding: 10px 20px;
@@ -97,7 +97,7 @@
         }
 
         #boton-borrar-marcadores:hover {
-            background-color: #ff6666;
+            background-color: #b498b4;
         }
     </style>
 </head>
@@ -105,7 +105,9 @@
     <div id="map" class="map"></div>
 
     <!-- Botón de búsqueda -->
-    <button class="search-button" onclick="toggleSearch()">🔍</button>
+    <button class="search-button" onclick="toggleSearch()">
+        <i class="fas fa-search"></i>
+    </button>
      <!-- Botón para borrar marcadores -->
      <button id="clearMarkers" onclick="clearUserMarkers()">🗑️</button>
 
@@ -170,7 +172,7 @@
         }
 
       //si esta autenticado puede añadir su ubicacion
-        <% if (isAuthenticated) { %>
+         if (isAuthenticated) { 
             // Agregar marcador con la ubicación del usuario
             if ("geolocation" in navigator) {
                   navigator.geolocation.getCurrentPosition(function(position) {
@@ -189,7 +191,7 @@
               } else {
                   alert("Geolocalización no disponible");
               }
-      <% } %>
+       } 
   
       // Obtener los parkings desde el servidor
       fetch('/parkings')
