@@ -1,66 +1,140 @@
 
-<%- layout('layouts/main')%>
-
 <!DOCTYPE html>
 <html>
 <head>
-      <title>Routing app</title>
-      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
-      <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
-	<style>
+    <title>Routing app</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+
+    <style>
         #map { 
             width: 100%;
             height: 580px;
             box-shadow: 5px 5px 5px #888;
-            margin-top: 200px; 
-         }
-	</style>   
+            margin-top: 20px; 
+        }
+
+        .filtro-busqueda {
+            position: absolute;
+            top: 115px;
+            right: 115px;
+            z-index: 1000;
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .filtro-busqueda label {
+            font-weight: bolder;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .filtro-busqueda input[type="text"] {
+            width: 200px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            margin-bottom: 10px;
+        }
+
+        .filtro-busqueda button {
+            background-color: #ce9bd4;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        .filtro-busqueda button:hover {
+            background-color: #ce9bd4;
+        }
+
+        .search-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background-color: #ce9bd4;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(99, 98, 98, 0.1);
+        }
+
+        .search-button:hover {
+            background-color: #d3a2d8;
+        }
+    </style>
 </head>
-
 <body>
-		
-      <div id="map" class="map"> </div>
-            <!-- leaflet js cdn-->
-            <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
-            <!-- leaflet roputing machine js-->
-            <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-  
+    <div id="map" class="map"></div>
 
-            <script>
-                  var map = L.map('map').setView([40.4167, -3.7038], 11);
-              
-                  var tileLayer = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
-                      maxZoom: 18
-                  }).addTo(map);
-              
-                  <% if (isAuthenticated) { %>
-                        // Agregar marcador con la ubicación del usuario
-                        if ("geolocation" in navigator) {
-                        navigator.geolocation.getCurrentPosition(function(position) {
-                              var userIcon = L.icon({
-                                    iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
-                                    iconSize: [38, 38],
-                                    iconAnchor: [19, 38],
-                                    popupAnchor: [0, -38]
-                              });
-                              var userMarker = L.marker([position.coords.latitude, position.coords.longitude], { icon: userIcon }).addTo(map);
-                              userMarker.bindPopup("Tu ubicación").openPopup();
-                        });
-                        }
-                  <% } %>
-              
-                  // Obtener los parkings desde el servidor
-                  fetch('/parkings')
-                      .then(response => response.json())
-                      .then(parkings => {
-                          // Añadir marcadores para cada parking
-                          parkings.forEach(parking => {
-                              L.marker([parking.LATITUD, parking.LONGITUD]).addTo(map);
-                          });
-                      })
-                      .catch(error => console.error('Error al obtener los parkings:', error));
-              </script>
+    <!-- Botón de búsqueda -->
+    <button class="search-button" onclick="toggleSearch()">🔍</button>
+
+    <!-- Filtro de búsqueda por dirección -->
+    <div class="filtro-busqueda" id="filtroBusqueda">
+        <label for="direccion">Buscar por dirección:</label>
+        <input type="text" id="direccion" name="direccion" placeholder="Introduzca una dirección...">
+        <button onclick="buscarPorDireccion()">Buscar</button>
+    </div>
+
+    <!-- Leaflet JS CDN -->
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+        var map = L.map('map').setView([40.416775, -3.70379], 11); // Centrar en Madrid
+
+        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+            maxZoom: 18
+        }).addTo(map);
+
+        // Función para buscar por dirección
+        function buscarPorDireccion() {
+            var direccion = document.getElementById('direccion').value;
+
+            L.Control.geocoder({
+                defaultMarkGeocode: false
+            })
+            .on('markgeocode', function(e) {
+                var latlng = e.geocode.center;
+                var marker = L.marker(latlng).addTo(map);
+                map.setView(latlng);
+            })
+            .addTo(map)
+            .geocode(direccion);
+        }
+
+        // Función para mostrar/ocultar el filtro de búsqueda
+        function toggleSearch() {
+            var filtroBusqueda = document.getElementById('filtroBusqueda');
+            if (filtroBusqueda.style.display === "none" || filtroBusqueda.style.display === "") {
+                filtroBusqueda.style.display = "block";
+            } else {
+                filtroBusqueda.style.display = "none";
+            }
+        }
+
+        // Evento de clic en el mapa para agregar marcadores y ruta
+        map.on('click', function(e) {
+            var secondMarker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+
+            L.Routing.control({
+                waypoints: [
+                    L.latLng(40.416775, -3.70379), // Madrid
+                    L.latLng(e.latlng.lat, e.latlng.lng)
+                ]
+            }).addTo(map);
+        });
+    </script>
 </body>
 </html>
-
