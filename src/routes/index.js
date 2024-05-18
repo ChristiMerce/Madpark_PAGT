@@ -15,13 +15,13 @@ router.get('/parkings', async (req, res, next) => {
     res.status(500).json({ message: 'Error fetching parking data' }); // Handle errors gracefully
   }
 });
-router.get('/signup', (req, res, next) => {
-    res.render('signup');
+router.get('/registro', (req, res, next) => {
+    res.render('registro');
   });
   
-  router.post('/signup', passport.authenticate('local-signup', {
+  router.post('/registro', passport.authenticate('local-signup', {
     successRedirect: '/profile',
-    failureRedirect: '/signup',
+    failureRedirect: '/registro',
     failureFlash: true
   })); 
 

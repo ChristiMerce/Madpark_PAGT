@@ -105,7 +105,7 @@
     <div id="map" class="map"></div>
 
     <!-- Botón de búsqueda -->
-    <button class="search-button" onclick="toggleSearch()">
+    <button class="search-button" onclick="toggleSearch()">🔍</button>
         <i class="fas fa-search"></i>
     </button>
      <!-- Botón para borrar marcadores -->
@@ -170,30 +170,60 @@
                 routingControl = null;
             }
         }
+    </script>
+      <!--Funcion para si esta autenticado obtenga la ubicación del usruario-->
+      <% if (isAuthenticated) { %>
+          <script>
+            navigator.geolocation.getCurrentPosition(function(position) {
+              userCoordinates = [position.coords.latitude, position.coords.longitude];
+              
+              var userIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
+                iconSize: [38, 38],
+                iconAnchor: [19, 38],
+                popupAnchor: [0, -38]
+              });
+              
+              var userMarker = L.marker(userCoordinates, { icon: userIcon }).addTo(map);
+              userMarker.bindPopup("Tu ubicación").openPopup();
+            });
+          </script>
+        <% } else { %>
+          <script>
+            alert("Para ver su ubicacion debe registrarse o iniciar sesión");
+          </script>
+        <% } %>
+        <!----->
 
-      //si esta autenticado puede añadir su ubicacion
-         if (isAuthenticated) { 
-            // Agregar marcador con la ubicación del usuario
-            if ("geolocation" in navigator) {
-                  navigator.geolocation.getCurrentPosition(function(position) {
-                      userCoordinates = [position.coords.latitude, position.coords.longitude];
-                      
-                      var userIcon = L.icon({
-                          iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
-                          iconSize: [38, 38],
-                          iconAnchor: [19, 38],
-                          popupAnchor: [0, -38]
-                      });
-                      
-                      var userMarker = L.marker(userCoordinates, { icon: userIcon }).addTo(map);
-                      userMarker.bindPopup("Tu ubicación").openPopup();
-                  });
-              } else {
-                  alert("Geolocalización no disponible");
-              }
-       } 
-  
-      // Obtener los parkings desde el servidor
+
+        <script>
+            var greenIcon = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
+                iconSize: [38, 38],
+                iconAnchor: [19, 38],
+                popupAnchor: [0, -38]
+            });
+
+        // Evento de clic en el mapa para agregar marcadores y ruta
+        map.on('click', function(e) {
+            
+            if (userCoordinates) {
+                var secondMarker = L.marker([e.latlng.lat, e.latlng.lng],{icon: greenIcon},options).addTo(map);
+                
+                L.Routing.control({
+                    waypoints: [
+                        L.latLng(userCoordinates[0], userCoordinates[1]), // Coordenadas del usuario
+                        L.latLng(e.latlng.lat, e.latlng.lng,{ icon: userIcon })
+                    ]
+                }).addTo(map);
+            } else {
+                  
+                alert("Ubicación del usuario no disponible");
+            }
+        });
+
+     // <---------------------------------------------->
+    // Obtener los parkings desde el servidor
       fetch('/parkings')
           .then(response => response.json())
           .then(parkings => {
@@ -208,31 +238,6 @@
           const options ={
                   draggable:true
             }
-
-
-
-
-
-        // Evento de clic en el mapa para agresgar marcadores y ruta
-        map.on('click', function(e) {
-            
-            if (userCoordinates) {
-                var secondMarker = L.marker([e.latlng.lat, e.latlng.lng],options).addTo(map);
-                
-                L.Routing.control({
-                    waypoints: [
-                        L.latLng(userCoordinates[0], userCoordinates[1]), // Coordenadas del usuario
-                        L.latLng(e.latlng.lat, e.latlng.lng)
-                    ]
-                }).addTo(map);
-            } else {
-                  
-                alert("Ubicación del usuario no disponible");
-            }
-        });
-
-        
-
 
 
 
