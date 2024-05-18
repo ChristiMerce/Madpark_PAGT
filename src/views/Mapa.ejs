@@ -99,9 +99,18 @@
         #boton-borrar-marcadores:hover {
             background-color: #b498b4;
         }
+
+        
     </style>
 </head>
 <body>
+    <!-- Filtar marcadores -->
+    <div id="search-container">
+        <label for="district-search">Buscar por distrito:</label>
+        <input type="text" id="district-search" placeholder="Nombre del distrito">
+      </div>
+
+
     <div id="map" class="map"></div>
 
     <!-- Botón de búsqueda -->
@@ -197,8 +206,8 @@
 
 
         <script>
-            var greenIcon = L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
+            var cine = L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/Popcorn-Cine.png?raw=true',
                 iconSize: [38, 38],
                 iconAnchor: [19, 38],
                 popupAnchor: [0, -38]
@@ -208,12 +217,12 @@
         map.on('click', function(e) {
             
             if (userCoordinates) {
-                var secondMarker = L.marker([e.latlng.lat, e.latlng.lng],{icon: greenIcon},options).addTo(map);
+                var secondMarker = L.marker([e.latlng.lat, e.latlng.lng],{icon: cine},options).addTo(map);
                 
                 L.Routing.control({
                     waypoints: [
                         L.latLng(userCoordinates[0], userCoordinates[1]), // Coordenadas del usuario
-                        L.latLng(e.latlng.lat, e.latlng.lng,{ icon: userIcon })
+                        L.latLng(e.latlng.lat, e.latlng.lng)
                     ]
                 }).addTo(map);
             } else {
@@ -224,15 +233,35 @@
 
      // <---------------------------------------------->
     // Obtener los parkings desde el servidor
-      fetch('/parkings')
-          .then(response => response.json())
-          .then(parkings => {
-              // Añadir marcadores para cada parking
-              parkings.forEach(parking => {
-                  L.marker([parking.LATITUD, parking.LONGITUD]).addTo(map);
-              });
-          })
-          .catch(error => console.error('Error al obtener los parkings:', error));
+
+
+
+    fetch('/parkings')
+    .then(response => response.json())
+    .then(parkings => {
+      // Recorre cada parking
+      parkings.forEach(parking => {
+        // Crea un marcador personalizado
+        const marker = L.marker([parking.LATITUD, parking.LONGITUD]);
+  
+        // Agrega funcionalidad al hacer clic en el marcador
+        marker.on('click', () => {
+          // Crea un elemento para mostrar la información (ej: popup)
+          const popupContent = `
+            <h2>${parking.NOMBRE}</h2>
+            <p>Distrito: ${parking.DISTRITO}</p>
+            <p>Barrio: ${parking.BARRIO}</p>
+            `;
+          
+          marker.bindPopup(popupContent).openPopup();
+        });
+  
+        // Agrega el marcador al mapa
+        marker.addTo(map);
+      });
+    })
+    .catch(error => console.error('Error al obtener los parkings:', error));
+  
 
 
           const options ={
