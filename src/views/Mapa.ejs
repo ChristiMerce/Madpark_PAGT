@@ -3,60 +3,55 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Routing app</title>
+    <title>MADPARK-Mapa</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
 
     <style>
         #map { 
             width: 100%;
-            height: 580px;
+            height: 480px;
             box-shadow: 5px 5px 5px #888;
-            margin-top: 150px; 
+            margin-top: 200px; 
         }
 
-        .filtro-busqueda {
+        .filtro-container {
             position: absolute;
-            top: 115px;
-            right: 115px;
+            top: 120px;
+            left: 115px;
             z-index: 1000;
-            background-color: #fff;
+            background-color: #9db9cf;
             border-radius: 5px;
             padding: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: none;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
         }
 
-        .filtro-busqueda label {
-            font-weight: bolder;
-            margin-bottom: 5px;
-            display: block;
+        .filtro-container.open {
+            max-height: 600px; /* Ajusta la altura según sea necesario */
         }
 
-        .filtro-busqueda input[type="text"] {
-            width: 200px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            margin-bottom: 10px;
-        }
-
-        .filtro-busqueda button {
-            background-color: #b4aeb4;
+        .filtro-container button {
+            background-color: #284c61ef;
             color: #fff;
             border: none;
-            padding: 8px 15px;
+            padding: 15px 15px;
             border-radius: 3px;
             cursor: pointer;
         }
 
-        .filtro-busqueda button:hover {
-            background-color: #ce9bd4;
+        .filtro-container button:hover {
+            background-color: #87CEFA;
         }
 
-        .search-button {
+        .search-button:hover {
+            background-color: #d3a2d8;
+        }
+
+        #clearMarkers {
             position: absolute;
-            top: 200px;
+            top: 90px;
             right: 20px;
             z-index: 1000;
             background-color: #b4aeb4;
@@ -68,57 +63,25 @@
             box-shadow: 0 2px 5px rgba(99, 98, 98, 0.1);
         }
 
-        .search-button:hover {
+        #clearMarkers:hover {
             background-color: #d3a2d8;
         }
-        #clearMarkersss {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            background: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        #clearMarkers {
-            position: absolute;
-            top: 260px; /* Ajusta este valor para mover el botón */
-            right: 20px; /* Manténlo alineado con el botón de búsqueda */
-            z-index: 1000;
-            background-color: #b4aeb4;
-            color: #fff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(99, 98, 98, 0.1);
-        }
-
-        #boton-borrar-marcadores:hover {
-            background-color: #b498b4;
-        }
-
-        
     </style>
 </head>
 <body>
 
     <div id="map" class="map"></div>
 
-    <!-- Botón de búsqueda -->
-    <button class="search-button" onclick="toggleSearch()">🔍</button>
-        <i class="fas fa-search"></i>
-    </button>
-     <!-- Botón para borrar marcadores -->
-     <button id="clearMarkers" onclick="clearUserMarkers()">🗑️</button>
 
-    <!-- Filtro de búsqueda por dirección -->
-    <div class="filtro-busqueda" id="filtroBusqueda">
-        <label for="direccion">Buscar por dirección:</label>
-        <input type="text" id="direccion" name="direccion" placeholder="Introduzca una dirección...">
-        <button onclick="buscarPorDireccion()">Buscar</button>
+    <!-- Filtro de búsqueda -->
+    <div class="filtro-container" id="filtroContainer">
+        <button onclick="toggleSearchBar()">Búsqueda en el mapa</button>
+        <div id="searchBar" style="display: none;">
+            <label for="direccion">Introduce una dirección:</label>
+            <input type="text" id="direccion" name="direccion" placeholder="Escribe aquí...">
+            <button onclick="buscarPorDireccion()">Buscar</button>
+        </div>
+        <button onclick="limpiarFiltros()">Borrar filtros</button>
     </div>
 
     <!-- Leaflet JS CDN -->
@@ -135,44 +98,44 @@
         }).addTo(map);
 
         function buscarPorDireccion() {
-        var direccion = document.getElementById('direccion').value;
+            var direccion = document.getElementById('direccion').value;
 
-        // Crear instancia del control geocoder
-        var controlGeocoder = L.Control.geocoder({
-            defaultMarkGeocode: false
-        })
-        .on('markgeocode', function(e) {
-            var latlng = e.geocode.center;
-            var marker = L.marker(latlng).addTo(map);
-            map.setView(latlng);
-        });
+            // Crear instancia del control geocoder
+            var controlGeocoder = L.Control.geocoder({
+                defaultMarkGeocode: false
+            })
+            .on('markgeocode', function(e) {
+                var latlng = e.geocode.center;
+                var marker = L.marker(latlng).addTo(map);
+                map.setView(latlng);
+            });
 
-    // Agregar el control al mapa y realizar la geocodificación
-    controlGeocoder.addTo(map).geocode(direccion);
-}
+            // Agregar el control al mapa y realizar la geocodificación
+            controlGeocoder.addTo(map).geocode(direccion);
+        }
 
-        // Función para mostrar/ocultar el filtro de búsqueda
-        function toggleSearch() {
-            var filtroBusqueda = document.getElementById('filtroBusqueda');
-            if (filtroBusqueda.style.display === "none" || filtroBusqueda.style.display === "") {
-                filtroBusqueda.style.display = "block";
+        function toggleSearchBar() {
+            var searchBar = document.getElementById('searchBar');
+            if (searchBar.style.display === "none" || searchBar.style.display === "") {
+                searchBar.style.display = "block";
             } else {
-                filtroBusqueda.style.display = "none";
+                searchBar.style.display = "none";
             }
         }
 
-
-        // Función para borrar los marcadores del usuario
-        function clearUserMarkers() {
-            userMarkers.forEach(function(marker) {
-                map.removeLayer(marker);
+        function limpiarFiltros() {
+            // Borrar marcadores y cualquier otro filtro aplicado
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
             });
-            userMarkers = [];
+            // Aquí puedes agregar más lógica para limpiar otros filtros aplicados
+        }
 
-            if (routingControl) {
-                map.removeControl(routingControl);
-                routingControl = null;
-            }
+        function toggleFiltroContainer() {
+            var filtroContainer = document.getElementById('filtroContainer');
+            filtroContainer.classList.toggle('open');
         }
     </script>
       <!--Funcion para si esta autenticado obtenga la ubicación del usruario-->
