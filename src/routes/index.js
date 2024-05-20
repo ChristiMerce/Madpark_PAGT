@@ -4,6 +4,7 @@ const passport = require('passport');
 const { Parkingmodel } = require('../database');
 const router = express.Router();
 const Parking =require('../models/parking');
+const User = require('../models/user');
 
 
 router.get('/parkings', async (req, res, next) => {
@@ -81,7 +82,7 @@ router.get('/profile',isAuthenticated, (req, res, next) => {
   });
 
 
-//si en una peticion esta autenticado q valla a la sigueinte ruta si no a la pagina principal
+//si en una peticion esta autenticado que vaya a a la sigueinte ruta si no a la pagina principal
   function isAuthenticated(req, res, next) {
     if(req.isAuthenticated()) {
       return next();
@@ -89,7 +90,20 @@ router.get('/profile',isAuthenticated, (req, res, next) => {
   
     res.redirect('/')
   }
+// Ruta para guardar la selección del parking para el usuario
+router.post('/seleccionar-parking', isAuthenticated, (req, res, next) => {
+  const { parkingId } = req.body;
+  const userId = req.user._id; // Suponiendo que tienes el usuario almacenado en req.user
 
+  // Aquí puedes guardar el parkingId en el usuario
+  User.findByIdAndUpdate(userId, { selectedParking: parkingId }, { new: true }, (err, user) => {
+      if (err) {
+          console.error('Error al guardar la selección del parking:', err);
+          return res.status(500).json({ message: 'Error al guardar la selección del parking' });
+      }
+      res.json(user); // Devuelve el usuario actualizado como respuesta
+  });
+});
 
 //para que las siguientes rutas necesiten que estes autenticado:
 /*

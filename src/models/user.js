@@ -10,7 +10,11 @@ const userSchema = new Schema({
   surename: String,
   address:String,
   comunidad:String,
-  Provincia:String
+  Provincia:String,
+  selectedParking: {
+    type: mongoose.Schema.Types.ObjectId, // Tipo de dato para almacenar el ID del parking
+    ref: 'parking' // Referencia al modelo Parking
+  }
 });
 
 //cifrado de la contraseña(hash)
