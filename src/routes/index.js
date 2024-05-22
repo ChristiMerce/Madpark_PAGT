@@ -40,6 +40,10 @@ router.get('/registro', (req, res, next) => {
 router.get('/signin', (req, res, next) => {
     res.render('signin');
   });
+  
+router.get('/reservas', (req, res, next) => {
+  res.render('reservas');
+});
 
 router.get('/conocenos', (req, res, next) => {
     res.render('conocenos');
