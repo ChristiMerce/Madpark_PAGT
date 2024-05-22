@@ -72,22 +72,22 @@
 
     <div id="map" class="map"></div>
 
-
-    <!-- Filtro de búsqueda -->
-    <div class="filtro-container" id="filtroContainer">
-        <button onclick="toggleSearchBar()">Búsqueda en el mapa</button>
-        <div id="searchBar" style="display: none;">
-            <label for="direccion">Introduce una dirección:</label>
-            <input type="text" id="direccion" name="direccion" placeholder="Escribe aquí...">
-            <button onclick="buscarPorDireccion()">Buscar</button>
-        </div>
-        <button onclick="limpiarFiltros()">Borrar filtros</button>
-    </div>
-
     <!-- Leaflet JS CDN -->
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet-src.js"></script>
+       <!-- esri Leaflet JS from CDN -->
+    <script src="https://unpkg.com/esri-leaflet@2.0.8/dist/esri-leaflet-debug.js"></script>
+
+
     <!-- Leaflet Routing Machine JS -->
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+     <!-- Leaflet Control Geocoder JS -->
+     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+<!--  esri Leaflet Control Geocoder JS -->
+     <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder-debug.js"></script>
+     <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder.css"></script>
+    
+    
 
     <script>
         var map = L.map('map').setView([40.416775, -3.70379], 11); // Centrar en Madrid
@@ -97,69 +97,44 @@
             maxZoom: 18
         }).addTo(map);
 
-        function buscarPorDireccion() {
-            var direccion = document.getElementById('direccion').value;
-
-            // Crear instancia del control geocoder
-            var controlGeocoder = L.Control.geocoder({
-                defaultMarkGeocode: false
-            })
-            .on('markgeocode', function(e) {
-                var latlng = e.geocode.center;
-                var marker = L.marker(latlng).addTo(map);
-                map.setView(latlng);
-            });
-
-            // Agregar el control al mapa y realizar la geocodificación
-            controlGeocoder.addTo(map).geocode(direccion);
-        }
-
-        function toggleSearchBar() {
-            var searchBar = document.getElementById('searchBar');
-            if (searchBar.style.display === "none" || searchBar.style.display === "") {
-                searchBar.style.display = "block";
-            } else {
-                searchBar.style.display = "none";
+        var searchControl = L.esri.Geocoding.geosearch().addTo(map);
+        var results = L.layerGroup().addTo(map);
+    
+        searchControl.on('results', function(data) {
+            results.clearLayers();
+            for (var i = data.results.length - 1; i >= 0; i--) {
+                results.addLayer(L.marker(data.results[i].latlng));
             }
-        }
-
-        function limpiarFiltros() {
-            // Borrar marcadores y cualquier otro filtro aplicado
-            map.eachLayer(function (layer) {
-                if (layer instanceof L.Marker) {
-                    map.removeLayer(layer);
-                }
-            });
-            // Aquí puedes agregar más lógica para limpiar otros filtros aplicados
-        }
-
-        function toggleFiltroContainer() {
-            var filtroContainer = document.getElementById('filtroContainer');
-            filtroContainer.classList.toggle('open');
-        }
+        });
     </script>
-      <!--Funcion para si esta autenticado obtenga la ubicación del usruario-->
-      <% if (isAuthenticated) { %>
-          <script>
-            navigator.geolocation.getCurrentPosition(function(position) {
-              userCoordinates = [position.coords.latitude, position.coords.longitude];
-              
-              var userIcon = L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
-                iconSize: [38, 38],
-                iconAnchor: [19, 38],
-                popupAnchor: [0, -38]
-              });
-              
-              var userMarker = L.marker(userCoordinates, { icon: userIcon }).addTo(map);
-              userMarker.bindPopup("Tu ubicación").openPopup();
-            });
-          </script>
-        <% } else { %>
-          <script>
-            alert("Para ver su ubicacion debe registrarse o iniciar sesión");
-          </script>
-        <% } %>
+   
+    
+<script>
+</script>
+  
+
+    <% if (isAuthenticated) { %>
+        <script>
+            var userCoordinates = null;
+    navigator.geolocation.getCurrentPosition(function(position) {
+        userCoordinates = [position.coords.latitude, position.coords.longitude];
+        
+        var userIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
+            iconSize: [38, 38],
+            iconAnchor: [19, 38],
+            popupAnchor: [0, -38]
+        });
+        
+        var userMarker = L.marker(userCoordinates, { icon: userIcon }).addTo(map);
+        userMarker.bindPopup("Tu ubicación").openPopup();
+    });
+</script>
+    <% } else { %>
+        <script>
+    alert("Para ver su ubicación debe registrarse o iniciar sesión");
+        </script>
+    <% } %>
         <!----->
 
 
@@ -168,69 +143,80 @@
 
      // <---------------------------------------------->
     // Obtener los parkings desde el servidor
-
-
-
     fetch('/parkings')
     .then(response => response.json())
     .then(parkings => {
-      // Recorre cada parking
-      parkings.forEach(parking => {
-        // Crea un marcador personalizado
-        const marker = L.marker([parking.LATITUD, parking.LONGITUD]);
-  
-        // Agrega funcionalidad al hacer clic en el marcador
-        marker.on('click', () => {
-          // Crea un elemento para mostrar la información (ej: popup)
-          const popupContent = `
-            <h2>${parking.NOMBRE}</h2>
-            <p>Distrito: ${parking.DISTRITO}</p>
-            <p>Barrio: ${parking.BARRIO}</p>
+        parkings.forEach(parking => {
+            const popupContent = `
+                <h2>${parking.NOMBRE}</h2>
+                <p>Distrito: ${parking.DISTRITO}</p>
+                <p>Barrio: ${parking.BARRIO}</p>
             `;
-          
-          marker.bindPopup(popupContent).openPopup();
+            const marker = L.marker([parking.LATITUD, parking.LONGITUD]).addTo(map);
+            marker.bindPopup(popupContent).openPopup();
+
+            marker.on('click', (e) => {
+                if (userCoordinates) {
+                    if (!routingControl) {
+                        calculateRoute(userCoordinates, [e.latlng.lat, e.latlng.lng]);
+                    } else {
+                        routingControl.setWaypoints([
+                            L.latLng(userCoordinates[0], userCoordinates[1]), // Ubicación del usuario
+                            L.latLng(e.latlng.lat, e.latlng.lng) // Parking seleccionado
+                        ]);
+                    }
+                } else {
+                    alert("Ubicación del usuario no disponible");
+                }
+            });
+            marker.addTo(map);
         });
-  
-        // Agrega el marcador al mapa
-        marker.addTo(map);
-      });
     })
     .catch(error => console.error('Error al obtener los parkings:', error));
-  
+    
 
 
           const options ={
                   draggable:true
             }       
     </script>
-    <script>
-         // Función para agregar marcadores de parking
-        function addParkingMarker(lat, lng) {
-            var parkingMarker = L.marker([lat, lng]).addTo(map);
-            parkingMarker.bindPopup("Parking seleccionado").openPopup();
-
-            parkingMarker.on('click', function(e) {
-                var userCoordinates = getUserCoordinates(); // Obtener ubicación del usuario
-                if (userCoordinates) {
-                    calculateRoute(userCoordinates, e.latlng); // Calcular ruta desde ubicación del usuario al parking seleccionado
-                } else {
-                    alert("Ubicación del usuario no disponible");
-                }
-            });
-        }
-
-    </script>
+    
     
     <script>
-        // Función para calcular la ruta desde la ubicación del usuario al parking seleccionado
+        var routingControl;
+
         function calculateRoute(start, end) {
-            L.Routing.control({
+            if (!start) {
+                alert("Ubicación del usuario no disponible");
+                return;
+            }
+        
+            // Restablecer las coordenadas de la ruta existente si hay alguna
+            limpiarRuta();
+        
+            // Calcular y mostrar la nueva ruta
+            routingControl = L.Routing.control({
                 waypoints: [
                     L.latLng(start[0], start[1]), // Ubicación del usuario
-                    L.latLng(end.lat, end.lng) // Parking seleccionado
-                ]
+                    L.latLng(end[0], end[1]) // Parking seleccionado
+                ],
+                routeWhileDragging: true
             }).addTo(map);
         }
+        
+        function limpiarRuta() {
+            console.log("Limpiando ruta...");
+            if (routingControl) {
+                console.log("routingControl existe, removiendo...");
+                routingControl.removeFrom(map); // Usa removeFrom() para eliminar el control de enrutamiento
+                routingControl = null; // Establece routingControl a null después de eliminarlo
+                console.log("Ruta eliminada.");
+            } else {
+                console.log("No hay ruta que limpiar.");
+            }
+        }
+
+
     </script>
 
 

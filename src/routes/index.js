@@ -90,20 +90,6 @@ router.get('/profile',isAuthenticated, (req, res, next) => {
   
     res.redirect('/')
   }
-// Ruta para guardar la selección del parking para el usuario
-router.post('/seleccionar-parking', isAuthenticated, (req, res, next) => {
-  const { parkingId } = req.body;
-  const userId = req.user._id; // Suponiendo que tienes el usuario almacenado en req.user
-
-  // Aquí puedes guardar el parkingId en el usuario
-  User.findByIdAndUpdate(userId, { selectedParking: parkingId }, { new: true }, (err, user) => {
-      if (err) {
-          console.error('Error al guardar la selección del parking:', err);
-          return res.status(500).json({ message: 'Error al guardar la selección del parking' });
-      }
-      res.json(user); // Devuelve el usuario actualizado como respuesta
-  });
-});
 
 //para que las siguientes rutas necesiten que estes autenticado:
 /*
