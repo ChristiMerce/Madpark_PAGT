@@ -5,6 +5,8 @@ const { Parkingmodel } = require('../database');
 const router = express.Router();
 const Parking =require('../models/parking');
 const User = require('../models/user');
+const Traffic = require('../models/traffic');
+
 
 
 router.get('/parkings', async (req, res, next) => {
@@ -14,6 +16,15 @@ router.get('/parkings', async (req, res, next) => {
   } catch (error) {
     console.error('Error fetching parking data:', error);
     res.status(500).json({ message: 'Error fetching parking data' }); // Handle errors gracefully
+  }
+});
+router.get('/traffic', async (req, res, next) => {
+  try {
+    const parkings = await Parking.find();
+    res.json(parkings); // Send traffic data as JSON response
+  } catch (error) {
+    console.error('Error fetching traffic data:', error);
+    res.status(500).json({ message: 'Error fetching traffic data' }); // Handle errors gracefully
   }
 });
 router.get('/registro', (req, res, next) => {

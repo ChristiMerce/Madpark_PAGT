@@ -1,5 +1,4 @@
-<%- layout('layouts/main')%>
-
+<% layout('layouts/main')%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,7 +9,7 @@
     <style>
         #map { 
             width: 100%;
-            height: 480px;
+            height: 420px;
             box-shadow: 5px 5px 5px #888;
             margin-top: 200px; 
         }
@@ -66,28 +65,69 @@
         #clearMarkers:hover {
             background-color: #d3a2d8;
         }
+
+        .leaflet-control-geosearch {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+        }
+
+        .leaflet-control-geosearch input {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 250px;
+        }
+
+        .leaflet-control-geosearch button {
+            background-color: #284c61ef;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .leaflet-control-geosearch button:hover {
+            background-color: #87CEFA;
+        }
+
+        #clearRouteButton {
+            position: absolute;
+            top: 580px; /* Ajusta la posición vertical según sea necesario */
+            left: 130px;
+            z-index: 1000;
+            background-color: #284c61ef;
+            color: #fff;
+            border: none;
+            padding: 8px 12px; /* Ajusta el tamaño del botón */
+            border-radius: 3px;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        #clearRouteButton:hover {
+            background-color: #87CEFA;
+        }
     </style>
 </head>
 <body>
 
     <div id="map" class="map"></div>
+    <button id="clearRouteButton" onclick="limpiarRuta()">Borrar Ruta</button>
 
     <!-- Leaflet JS CDN -->
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet-src.js"></script>
-       <!-- esri Leaflet JS from CDN -->
+    <!-- esri Leaflet JS from CDN -->
     <script src="https://unpkg.com/esri-leaflet@2.0.8/dist/esri-leaflet-debug.js"></script>
-
 
     <!-- Leaflet Routing Machine JS -->
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
-     <!-- Leaflet Control Geocoder JS -->
-     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
-<!--  esri Leaflet Control Geocoder JS -->
-     <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder-debug.js"></script>
-     <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder.css"></script>
-    
-    
+    <!-- Leaflet Control Geocoder JS -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <!-- esri Leaflet Control Geocoder JS -->
+    <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder-debug.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder.css" />
 
     <script>
         var map = L.map('map').setView([40.416775, -3.70379], 11); // Centrar en Madrid
@@ -108,79 +148,84 @@
         });
     </script>
    
-    
-<script>
-</script>
-  
-
     <% if (isAuthenticated) { %>
         <script>
             var userCoordinates = null;
-    navigator.geolocation.getCurrentPosition(function(position) {
-        userCoordinates = [position.coords.latitude, position.coords.longitude];
-        
-        var userIcon = L.icon({
-            iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
-            iconSize: [38, 38],
-            iconAnchor: [19, 38],
-            popupAnchor: [0, -38]
-        });
-        
-        var userMarker = L.marker(userCoordinates, { icon: userIcon }).addTo(map);
-        userMarker.bindPopup("Tu ubicación").openPopup();
-    });
-</script>
+            navigator.geolocation.getCurrentPosition(function(position) {
+                userCoordinates = [position.coords.latitude, position.coords.longitude];
+                
+                var userIcon = L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
+                    iconSize: [25, 25],
+                    iconAnchor: [12, 25],
+                    popupAnchor: [0, -25]
+                });
+                
+                var userMarker = L.marker(userCoordinates, { icon: userIcon }).addTo(map);
+                userMarker.bindPopup("Tu ubicación").openPopup();
+            });
+        </script>
     <% } else { %>
         <script>
-    alert("Para ver su ubicación debe registrarse o iniciar sesión");
+            alert("Para ver su ubicación debe registrarse o iniciar sesión");
         </script>
     <% } %>
-        <!----->
-
-
-        <script>
-
-
-     // <---------------------------------------------->
-    // Obtener los parkings desde el servidor
-    fetch('/parkings')
-    .then(response => response.json())
-    .then(parkings => {
-        parkings.forEach(parking => {
-            const popupContent = `
-                <h2>${parking.NOMBRE}</h2>
-                <p>Distrito: ${parking.DISTRITO}</p>
-                <p>Barrio: ${parking.BARRIO}</p>
-            `;
-            const marker = L.marker([parking.LATITUD, parking.LONGITUD]).addTo(map);
-            marker.bindPopup(popupContent).openPopup();
-
-            marker.on('click', (e) => {
-                if (userCoordinates) {
-                    if (!routingControl) {
-                        calculateRoute(userCoordinates, [e.latlng.lat, e.latlng.lng]);
-                    } else {
-                        routingControl.setWaypoints([
-                            L.latLng(userCoordinates[0], userCoordinates[1]), // Ubicación del usuario
-                            L.latLng(e.latlng.lat, e.latlng.lng) // Parking seleccionado
-                        ]);
-                    }
-                } else {
-                    alert("Ubicación del usuario no disponible");
-                }
-            });
-            marker.addTo(map);
+    <!----->
+    <script>
+        var parkingIcon = L.icon({
+            iconUrl: 'images/aparcamiento.png',
+            iconSize: [12, 12],
+            iconAnchor: [12, 25],
+            popupAnchor: [0, -25]
         });
-    })
-    .catch(error => console.error('Error al obtener los parkings:', error));
-    
 
-
-          const options ={
-                  draggable:true
-            }       
+        var selectedParkingIcon = L.icon({
+            iconUrl: 'images/selectedParking.png', // Asegúrate de tener este icono en la ruta correcta
+            iconSize: [25, 25],
+            iconAnchor: [12, 25],
+            popupAnchor: [0, -25]
+        });
     </script>
-    
+
+    <script>
+        // Obtener los parkings desde el servidor
+        fetch('/parkings')
+        .then(response => response.json())
+        .then(parkings => {
+            parkings.forEach(parking => {
+                const popupContent = `
+                    <h2>${parking.NOMBRE}</h2>
+                    <p>Distrito: ${parking.DISTRITO}</p>
+                    <p>Barrio: ${parking.BARRIO}</p>
+                `;
+                const marker = L.marker([parking.LATITUD, parking.LONGITUD], { icon: parkingIcon }).addTo(map);
+                marker.bindPopup(popupContent);
+
+                marker.on('click', (e) => {
+                    if (userCoordinates) {
+                        if (!routingControl) {
+                            calculateRoute(userCoordinates, [e.latlng.lat, e.latlng.lng]);
+                        } else {
+                            routingControl.setWaypoints([
+                                L.latLng(userCoordinates[0], userCoordinates[1]), // Ubicación del usuario
+                                L.latLng(e.latlng.lat, e.latlng.lng) // Parking seleccionado
+                            ]);
+                        }
+                    } else {
+                        alert("Ubicación del usuario no disponible");
+                    }
+                    // Cambiar el icono del parking seleccionado
+                    e.target.setIcon(selectedParkingIcon);
+                });
+                marker.addTo(map);
+            });
+        })
+        .catch(error => console.error('Error al obtener los parkings:', error));
+
+        const options = {
+            draggable: true
+        }       
+    </script>
     
     <script>
         var routingControl;
@@ -216,9 +261,32 @@
             }
         }
 
-
+        // Añadir evento al botón de borrar ruta para calcular la ruta nuevamente
+        document.getElementById('clearRouteButton').addEventListener('click', () => {
+            limpiarRuta();
+            if (userCoordinates && selectedParkingLatLng) {
+                calculateRoute(userCoordinates, selectedParkingLatLng);
+            }
+        });
     </script>
-
+    <script>
+        function buscarDatosTrafico(coordinates) {
+    // Realizar una solicitud al servidor para obtener datos de tráfico
+    fetch('/traffic')
+    .then(response => response.json())
+        .then(traffic => {
+            traffic.forEach(parking => {
+                const popupContent = `
+                    <h2>${traffic.carga}</h2>
+                `;
+                
+                marker.bindPopup(popupContent);
+    })
+        })
+    .catch(error => console.error('Error al obtener datos de tráfico:', error));
+}
+    </script>
 
 </body>
 </html>
+
