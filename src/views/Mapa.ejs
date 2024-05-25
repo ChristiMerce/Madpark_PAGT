@@ -187,105 +187,153 @@
         });
     </script>
 
-    <script>
-        // Obtener los parkings desde el servidor
-        fetch('/parkings')
-        .then(response => response.json())
-        .then(parkings => {
-            parkings.forEach(parking => {
-                const popupContent = `
-                    <h2>${parking.NOMBRE}</h2>
-                    <p>Distrito: ${parking.DISTRITO}</p>
-                    <p>Barrio: ${parking.BARRIO}</p>
-                `;
-                const marker = L.marker([parking.LATITUD, parking.LONGITUD], { icon: parkingIcon }).addTo(map);
-                marker.bindPopup(popupContent);
-
-                marker.on('click', (e) => {
-                    if (userCoordinates) {
-                        if (!routingControl) {
-                            calculateRoute(userCoordinates, [e.latlng.lat, e.latlng.lng]);
-                        } else {
-                            routingControl.setWaypoints([
-                                L.latLng(userCoordinates[0], userCoordinates[1]), // Ubicación del usuario
-                                L.latLng(e.latlng.lat, e.latlng.lng) // Parking seleccionado
-                            ]);
-                        }
-                    } else {
-                        alert("Ubicación del usuario no disponible");
-                    }
-                    // Cambiar el icono del parking seleccionado
-                    e.target.setIcon(selectedParkingIcon);
-                });
-                marker.addTo(map);
-            });
-        })
-        .catch(error => console.error('Error al obtener los parkings:', error));
-
-        const options = {
-            draggable: true
-        }       
-    </script>
-    
-    <script>
-        var routingControl;
-
-        function calculateRoute(start, end) {
-            if (!start) {
-                alert("Ubicación del usuario no disponible");
-                return;
-            }
-        
-            // Restablecer las coordenadas de la ruta existente si hay alguna
-            limpiarRuta();
-        
-            // Calcular y mostrar la nueva ruta
-            routingControl = L.Routing.control({
-                waypoints: [
-                    L.latLng(start[0], start[1]), // Ubicación del usuario
-                    L.latLng(end[0], end[1]) // Parking seleccionado
-                ],
-                routeWhileDragging: true
-            }).addTo(map);
-        }
-        
-        function limpiarRuta() {
-            console.log("Limpiando ruta...");
-            if (routingControl) {
-                console.log("routingControl existe, removiendo...");
-                routingControl.removeFrom(map); // Usa removeFrom() para eliminar el control de enrutamiento
-                routingControl = null; // Establece routingControl a null después de eliminarlo
-                console.log("Ruta eliminada.");
-            } else {
-                console.log("No hay ruta que limpiar.");
-            }
-        }
-
-        // Añadir evento al botón de borrar ruta para calcular la ruta nuevamente
-        document.getElementById('clearRouteButton').addEventListener('click', () => {
-            limpiarRuta();
-            if (userCoordinates && selectedParkingLatLng) {
-                calculateRoute(userCoordinates, selectedParkingLatLng);
-            }
-        });
-    </script>
-    <script>
-        function buscarDatosTrafico(coordinates) {
-    // Realizar una solicitud al servidor para obtener datos de tráfico
-    fetch('/traffic')
+<script>
+    // Obtener los parkings desde el servidor
+    fetch('/parkings')
     .then(response => response.json())
-        .then(traffic => {
-            traffic.forEach(parking => {
-                const popupContent = `
-                    <h2>${traffic.carga}</h2>
-                `;
-                
-                marker.bindPopup(popupContent);
+    .then(parkings => {
+        parkings.forEach(parking => {
+            // Verificar el campo TELEFONO
+            const telefonoTexto = parking.TELEFONO && !isNaN(parking.TELEFONO) ? parking.TELEFONO : "No se dispone de telefono de contacto";
+
+            const popupContent = `
+                <h2>${parking.NOMBRE}</h2>
+                <p>Distrito: ${parking.DISTRITO}</p>
+                <p>Barrio: ${parking.BARRIO}</p>
+                <p>Teléfono: ${telefonoTexto}</p>
+                <button onclick="seleccionarParking('${parking._id}', '${parking.NOMBRE}')">Seleccionar Parking</button>
+            `;
+            
+            const marker = L.marker([parking.LATITUD, parking.LONGITUD], { icon: parkingIcon }).addTo(map);
+            marker.bindPopup(popupContent);
+
+            marker.on('click', (e) => {
+                if (userCoordinates) {
+                    if (!routingControl) {
+                        calculateRoute(userCoordinates, [e.latlng.lat, e.latlng.lng]);
+                    } else {
+                        routingControl.setWaypoints([
+                            L.latLng(userCoordinates[0], userCoordinates[1]), // Ubicación del usuario
+                            L.latLng(e.latlng.lat, e.latlng.lng) // Parking seleccionado
+                        ]);
+                    }
+                } else {
+                    alert("Ubicación del usuario no disponible");
+                }
+                // Cambiar el icono del parking seleccionado
+                e.target.setIcon(selectedParkingIcon);
+            });
+            marker.addTo(map);
+        });
     })
+    .catch(error => console.error('Error al obtener los parkings:', error));
+
+    const options = {
+        draggable: true
+    };
+
+    // Función para seleccionar un parking
+    function seleccionarParking(parkingId, parkingNombre) {
+        fetch('/seleccionar-parking', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                parkingId: parkingId,
+                parkingNombre: parkingNombre
+            })
         })
-    .catch(error => console.error('Error al obtener datos de tráfico:', error));
-}
-    </script>
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Parking ${parkingNombre} seleccionado exitosamente`);
+            } else {
+                alert('Error al seleccionar el parking');
+            }
+        })
+        .catch(error => console.error('Error al seleccionar el parking:', error));
+    }
+
+    // Función para buscar datos de tráfico
+    function buscarDatosTrafico(coordinates) {
+        fetch('/traffics')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al obtener datos de tráfico');
+                }
+                return response.json();
+            })
+            .then(traffics => {
+                traffics.forEach(traffic => {
+                    // Convertir st_x y st_y a números para la comparación
+                    const trafficX = parseFloat(traffic.st_x);
+                    const trafficY = parseFloat(traffic.st_y);
+                    
+                    if (trafficX === coordinates[0] && trafficY === coordinates[1]) {
+                        const popupContent = `
+                            <p>${traffic.carga}</p>
+                        `;
+                        
+                        // Crear un marcador en las coordenadas coincidentes y mostrar el popup
+                        const marker = L.marker([trafficY, trafficX]).addTo(map);
+                        marker.bindPopup(popupContent).openPopup();
+                    }
+                });
+            })
+            .catch(error => console.error('Error al obtener datos de tráfico:', error));
+    }
+
+    var routingControl;
+
+    // Función para calcular la ruta
+    function calculateRoute(start, end) {
+        if (!start) {
+            alert("Ubicación del usuario no disponible");
+            return;
+        }
+    
+        // Restablecer las coordenadas de la ruta existente si hay alguna
+        limpiarRuta();
+    
+        // Calcular y mostrar la nueva ruta
+        routingControl = L.Routing.control({
+            waypoints: [
+                L.latLng(start[0], start[1]), // Ubicación del usuario
+                L.latLng(end[0], end[1]) // Parking seleccionado
+            ],
+            routeWhileDragging: true
+        }).addTo(map);
+        
+        // Buscar datos de tráfico en el punto final
+        buscarDatosTrafico(end);
+    }
+
+    // Función para limpiar la ruta
+    function limpiarRuta() {
+        console.log("Limpiando ruta...");
+        if (routingControl) {
+            console.log("routingControl existe, removiendo...");
+            routingControl.removeFrom(map); // Usa removeFrom() para eliminar el control de enrutamiento
+            routingControl = null; // Establece routingControl a null después de eliminarlo
+            console.log("Ruta eliminada.");
+        } else {
+            console.log("No hay ruta que limpiar.");
+        }
+    }
+
+    // Añadir evento al botón de borrar ruta para calcular la ruta nuevamente
+    document.getElementById('clearRouteButton').addEventListener('click', () => {
+        limpiarRuta();
+        if (userCoordinates && selectedParkingLatLng) {
+            calculateRoute(userCoordinates, selectedParkingLatLng);
+        }
+    });
+</script>
+
+    
+    
+    
 
 </body>
 </html>

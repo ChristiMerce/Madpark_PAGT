@@ -2,7 +2,15 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt-nodejs');
 
 const { Schema } = mongoose;
+const reservationSchema = new Schema({
+  parkingId: { type: mongoose.Schema.Types.ObjectId, ref: 'Parking' },
+  parkingName: String,
+  parkingBarrio: String,
+  createdAt: { type: Date, default: Date.now }
+});
 
+
+module.exports = reservationSchema;
 const userSchema = new Schema({
   email: String,
   password: String,
@@ -11,11 +19,14 @@ const userSchema = new Schema({
   address:String,
   comunidad:String,
   Provincia:String,
-  selectedParking: {
-    type: mongoose.Schema.Types.ObjectId, // Tipo de dato para almacenar el ID del parking
-    ref: 'parking' // Referencia al modelo Parking
-  }
+    // Añade el campo para almacenar el parking seleccionado
+    selectedParking: {
+      id: { type: mongoose.Schema.Types.ObjectId, ref: 'Parking' },
+      nombre: String
+    },
+    reservations: [reservationSchema]
 });
+
 
 //cifrado de la contraseña(hash)
 userSchema.methods.encryptPassword = (password) => {

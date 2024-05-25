@@ -40,7 +40,46 @@ router.get('/registro', (req, res, next) => {
 router.get('/signin', (req, res, next) => {
     res.render('signin');
   });
+
   
+// Ruta para seleccionar un parking
+router.post('/seleccionar-parking', async (req, res) => {
+  const { parkingId, parkingNombre, parkingBarrio } = req.body;
+  const userId = req.user._id; // Asume que el usuario está autenticado y el ID del usuario está disponible en req.user._id
+
+  try {
+      // Actualiza el usuario con el parking seleccionado y añade una nueva reserva
+      await User.findByIdAndUpdate(userId, {
+          selectedParking: {
+              id: parkingId,
+              nombre: parkingNombre
+          },
+          $push: {
+              reservations: {
+                  parkingId: parkingId,
+                  parkingName: parkingNombre,
+                  parkingBarrio: parkingBarrio
+              }
+          }
+      });
+
+      res.json({ success: true, message: 'Parking seleccionado exitosamente' });
+  } catch (error) {
+      console.error('Error al seleccionar el parking:', error);
+      res.status(500).json({ success: false, message: 'Error al seleccionar el parking' });
+  }
+});
+router.get('/reservas', async (req, res) => {
+  const userId = req.user._id;
+
+  try {
+      const user = await User.findById(userId);
+      res.render('reservas', { reservations: user.reservations });
+  } catch (error) {
+      console.error('Error al obtener el perfil del usuario:', error);
+      res.status(500).send('Error al cargar el perfil del usuario');
+  }
+});
 router.get('/reservas', (req, res, next) => {
   res.render('reservas');
 });
