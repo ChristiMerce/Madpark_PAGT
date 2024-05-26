@@ -56,7 +56,8 @@
                             <h5 class="card-title">Reserva #<%= reservation._id %></h5>
                             <p class="card-text">Nombre del Parking: <%= reservation.parkingName %></p>
                             <p class="card-text">Fecha de Reserva: <%= reservation.createdAt %></p>
-                            <a href="#" class="btn btn-custom">Ver Detalles</a>
+                            <button class="btn btn-custom" >Ver Detalles</button>
+                            <button class="btn btn-danger" onclick="deleteReservation('<%= reservation._id %>')">Eliminar</button>
                         </div>
                     </div>
                 </div>
@@ -65,3 +66,25 @@
     </div>
     <%- include('footer') %>
 </body>
+
+<script>
+    function deleteReservation(reservationId) {
+        fetch('/delete-reservation', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: reservationId }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove the card from the DOM
+                document.getElementById('card-' + reservationId).remove();
+            } else {
+                alert('Error al eliminar la reserva');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>

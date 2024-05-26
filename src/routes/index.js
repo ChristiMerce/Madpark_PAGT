@@ -83,6 +83,26 @@ router.get('/reservas', async (req, res) => {
 router.get('/reservas', (req, res, next) => {
   res.render('reservas');
 });
+// Ruta para eliminar una reserva
+router.delete('/delete-reservation', async (req, res) => {
+  try {
+    const userId = req.session.userId; // Suponiendo que tienes un sistema de autenticación con sesiones
+    const { id } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+
+    user.selectedParking = user.selectedParking.filter(reservation => reservation._id.toString() !== id);
+
+    await user.save();
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error al eliminar la reserva:', error);
+    res.status(500).json({ message: 'Error al eliminar la reserva' });
+  }
+});
 
 router.get('/conocenos', (req, res, next) => {
     res.render('conocenos');

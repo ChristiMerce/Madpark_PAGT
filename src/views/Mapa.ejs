@@ -108,6 +108,43 @@
         #clearRouteButton:hover {
             background-color: #87CEFA;
         }
+        .btn-custom {
+            background-color: #284c61ef;
+            color: #FFFFFF;
+            border: none;
+        }
+
+        .btn-custom:hover {
+            background-color: #65a5a5;
+        }
+
+        .btn-custom-select {
+            background-color: #284c61ef; /* Color de fondo */
+            color: white; /* Color del texto */
+            border: none; /* Sin borde */
+            padding: 5px 10px; /* Relleno del botón */
+            text-align: center; /* Alineación del texto */
+            text-decoration: none; /* Sin subrayado */
+            display: inline-block; /* Mostrar en línea */
+            font-size: 12px; /* Tamaño de la fuente */
+            margin: 4px 2px; /* Margen */
+            cursor: pointer; /* Cursor de puntero */
+            border-radius: 12px; /* Bordes redondeados */
+        }
+
+        .btn-custom-select:hover {
+            background-color: #65a5a5; /* Color de fondo al pasar el cursor */
+        }
+
+        .link {
+            color: #284c61ef;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            color: #87CEFA;
+        }
+
     </style>
 </head>
 <body>
@@ -201,7 +238,7 @@
                 <p>Distrito: ${parking.DISTRITO}</p>
                 <p>Barrio: ${parking.BARRIO}</p>
                 <p>Teléfono: ${telefonoTexto}</p>
-                <button onclick="seleccionarParking('${parking._id}', '${parking.NOMBRE}')">Seleccionar Parking</button>
+                <button class="btn btn-custom-select" onclick="seleccionarParking('${parking._id}', '${parking.NOMBRE}')">Seleccionar Parking</button>
             `;
             
             const marker = L.marker([parking.LATITUD, parking.LONGITUD], { icon: parkingIcon }).addTo(map);
