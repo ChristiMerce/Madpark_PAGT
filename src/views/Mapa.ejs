@@ -131,6 +131,19 @@
             cursor: pointer; /* Cursor de puntero */
             border-radius: 12px; /* Bordes redondeados */
         }
+        .btn-custom-selectD {
+            background-color: #a07db8; /* Color de fondo */
+            color: white; /* Color del texto */
+            border: none; /* Sin borde */
+            padding: 5px 10px; /* Relleno del botón */
+            text-align: center; /* Alineación del texto */
+            text-decoration: none; /* Sin subrayado */
+            display: inline-block; /* Mostrar en línea */
+            font-size: 12px; /* Tamaño de la fuente */
+            margin: 4px 2px; /* Margen */
+            cursor: pointer; /* Cursor de puntero */
+            border-radius: 12px; /* Bordes redondeados */
+        }
 
         .btn-custom-select:hover {
             background-color: #65a5a5; /* Color de fondo al pasar el cursor */
@@ -144,6 +157,14 @@
         .link:hover {
             color: #87CEFA;
         }
+        #descripcion-parking {
+        display: none; /* Oculto por defecto */
+        background-color: #f9f9f9; /* Color de fondo */
+        border: 1px solid #ccc; /* Borde */
+        padding: 10px; /* Relleno */
+        margin-top: 10px; /* Margen superior */
+        border-radius: 5px; /* Bordes redondeados */
+    }
 
     </style>
 </head>
@@ -238,6 +259,8 @@
                 <p>Distrito: ${parking.DISTRITO}</p>
                 <p>Barrio: ${parking.BARRIO}</p>
                 <p>Teléfono: ${telefonoTexto}</p>
+                <button class="btn btn-custom-selectD" onclick="mostrarDescripcion('${parking.DESCRIPCION}')">Plazas libres y otra información</button>
+                <div id="descripcion-parking" style="display:none; margin-top:10px;"></div>
                 <button class="btn btn-custom-select" onclick="seleccionarParking('${parking._id}', '${parking.NOMBRE}')">Seleccionar Parking</button>
             `;
             
@@ -290,6 +313,12 @@
             }
         })
         .catch(error => console.error('Error al seleccionar el parking:', error));
+    }
+    // Función para mostrar la descripción del parking
+    function mostrarDescripcion(descripcion) {
+        const descripcionDiv = document.getElementById('descripcion-parking');
+        descripcionDiv.textContent = descripcion;
+        descripcionDiv.style.display = 'block';
     }
 
     // Función para buscar datos de tráfico
