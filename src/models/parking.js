@@ -14,7 +14,7 @@ const parkingSchema = new Schema({
   lat:Number,
   long:Number,
   telefono:Number
-    // Add other fields as needed
+    
 });
 
 const Parking = mongoose.model('parking', parkingSchema);

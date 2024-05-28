@@ -6,6 +6,7 @@ const passport = require('passport');
 const session = require('express-session');
 const flash = require('connect-flash');
 const Parking =require('./models/parking');
+const Traffic=require('./models/traffic')
 const RutaParking=require('./routes/index')
 
 // initializations
@@ -25,6 +26,9 @@ app.use(express.static(path.join(__dirname, 'views', 'layouts')));
 
 
 // middlewares
+// Middleware para parsear JSON y datos de formulario
+app.use(express.json());
+
 app.use(morgan('dev'));
 app.use(express.urlencoded({extended: true}));
 app.use(session({
@@ -47,6 +51,9 @@ app.use((req, res, next) => {
 
   
   app.use('/parkings', RutaParking);
+
+  app.use('/traffic', RutaParking);
+  
 
 // routes
 app.use('/', require('./routes/index'));

@@ -1,62 +1,56 @@
-<%- layout('layouts/main')%>
-
+<% layout('layouts/main')%>
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Routing app</title>
+    <title>MADPARK-Mapa</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
 
     <style>
         #map { 
             width: 100%;
-            height: 580px;
+            height: 420px;
             box-shadow: 5px 5px 5px #888;
-            margin-top: 150px; 
+            margin-top: 200px; 
         }
 
-        .filtro-busqueda {
+        .filtro-container {
             position: absolute;
-            top: 115px;
-            right: 115px;
+            top: 120px;
+            left: 115px;
             z-index: 1000;
-            background-color: #fff;
+            background-color: #9db9cf;
             border-radius: 5px;
             padding: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            display: none;
+            overflow: hidden;
+            transition: max-height 0.3s ease-in-out;
         }
 
-        .filtro-busqueda label {
-            font-weight: bolder;
-            margin-bottom: 5px;
-            display: block;
+        .filtro-container.open {
+            max-height: 600px; /* Ajusta la altura según sea necesario */
         }
 
-        .filtro-busqueda input[type="text"] {
-            width: 200px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            margin-bottom: 10px;
-        }
-
-        .filtro-busqueda button {
-            background-color: #b4aeb4;
+        .filtro-container button {
+            background-color: #284c61ef;
             color: #fff;
             border: none;
-            padding: 8px 15px;
+            padding: 15px 15px;
             border-radius: 3px;
             cursor: pointer;
         }
 
-        .filtro-busqueda button:hover {
-            background-color: #ce9bd4;
+        .filtro-container button:hover {
+            background-color: #87CEFA;
         }
 
-        .search-button {
+        .search-button:hover {
+            background-color: #d3a2d8;
+        }
+
+        #clearMarkers {
             position: absolute;
-            top: 200px;
+            top: 90px;
             right: 20px;
             z-index: 1000;
             background-color: #b4aeb4;
@@ -68,39 +62,93 @@
             box-shadow: 0 2px 5px rgba(99, 98, 98, 0.1);
         }
 
-        .search-button:hover {
+        #clearMarkers:hover {
             background-color: #d3a2d8;
         }
-        #clearMarkersss {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-            background: white;
-            padding: 10px;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
+
+        .leaflet-control-geosearch {
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
         }
-        #clearMarkers {
-            position: absolute;
-            top: 260px; /* Ajusta este valor para mover el botón */
-            right: 20px; /* Manténlo alineado con el botón de búsqueda */
-            z-index: 1000;
-            background-color: #b4aeb4;
+
+        .leaflet-control-geosearch input {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 250px;
+        }
+
+        .leaflet-control-geosearch button {
+            background-color: #284c61ef;
             color: #fff;
             border: none;
-            padding: 10px 20px;
-            border-radius: 50%;
+            padding: 8px 15px;
+            border-radius: 4px;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(99, 98, 98, 0.1);
         }
 
-        #boton-borrar-marcadores:hover {
-            background-color: #b498b4;
+        .leaflet-control-geosearch button:hover {
+            background-color: #87CEFA;
         }
 
-        
+        .btn-custom {
+            background-color: #284c61ef;
+            color: #FFFFFF;
+            border: none;
+        }
+
+        .btn-custom:hover {
+            background-color: #65a5a5;
+        }
+
+        .btn-custom-select {
+            background-color: #284c61ef; /* Color de fondo */
+            color: white; /* Color del texto */
+            border: none; /* Sin borde */
+            padding: 5px 10px; /* Relleno del botón */
+            text-align: center; /* Alineación del texto */
+            text-decoration: none; /* Sin subrayado */
+            display: inline-block; /* Mostrar en línea */
+            font-size: 12px; /* Tamaño de la fuente */
+            margin: 4px 2px; /* Margen */
+            cursor: pointer; /* Cursor de puntero */
+            border-radius: 12px; /* Bordes redondeados */
+        }
+        .btn-custom-selectD {
+            background-color: #a07db8; /* Color de fondo */
+            color: white; /* Color del texto */
+            border: none; /* Sin borde */
+            padding: 5px 10px; /* Relleno del botón */
+            text-align: center; /* Alineación del texto */
+            text-decoration: none; /* Sin subrayado */
+            display: inline-block; /* Mostrar en línea */
+            font-size: 12px; /* Tamaño de la fuente */
+            margin: 4px 2px; /* Margen */
+            cursor: pointer; /* Cursor de puntero */
+            border-radius: 12px; /* Bordes redondeados */
+        }
+
+        .btn-custom-select:hover {
+            background-color: #65a5a5; /* Color de fondo al pasar el cursor */
+        }
+
+        .link {
+            color: #284c61ef;
+            text-decoration: none;
+        }
+
+        .link:hover {
+            color: #87CEFA;
+        }
+        #descripcion-parking {
+        display: none; /* Oculto por defecto */
+        background-color: #f9f9f9; /* Color de fondo */
+        border: 1px solid #ccc; /* Borde */
+        padding: 10px; /* Relleno */
+        margin-top: 10px; /* Margen superior */
+        border-radius: 5px; /* Bordes redondeados */
+    }
+
     </style>
 </head>
 <body>
@@ -108,25 +156,23 @@
  
 
     <div id="map" class="map"></div>
-
-    <!-- Botón de búsqueda -->
-    <button class="search-button" onclick="toggleSearch()">🔍</button>
-        <i class="fas fa-search"></i>
-    </button>
-     <!-- Botón para borrar marcadores -->
-     <button id="clearMarkers" onclick="clearUserMarkers()">🗑️</button>
-
-    <!-- Filtro de búsqueda por dirección -->
-    <div class="filtro-busqueda" id="filtroBusqueda">
-        <label for="direccion">Buscar por dirección:</label>
-        <input type="text" id="direccion" name="direccion" placeholder="Introduzca una dirección...">
-        <button onclick="buscarPorDireccion()">Buscar</button>
-    </div>
+    
 
     <!-- Leaflet JS CDN -->
     <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet-src.js"></script>
+    <!-- esri Leaflet JS from CDN -->
+    <script src="https://unpkg.com/esri-leaflet@2.0.8/dist/esri-leaflet-debug.js"></script>
+
     <!-- Leaflet Routing Machine JS -->
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+    <!-- Leaflet Control Geocoder JS -->
+    <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    <!-- esri Leaflet Control Geocoder JS -->
+    <script src="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder-debug.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder@2.2.4/dist/esri-leaflet-geocoder.css" />
+    <!-- Proj4 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
 
     <script>
         var map = L.map('map').setView([40.416775, -3.70379], 11); // Centrar en Madrid
@@ -136,96 +182,56 @@
             maxZoom: 18
         }).addTo(map);
 
-        // Función para buscar por dirección
-        function buscarPorDireccion() {
-            var direccion = document.getElementById('direccion').value;
-
-            L.Control.geocoder({
-                defaultMarkGeocode: false
-            })
-            .on('markgeocode', function(e) {
-                var latlng = e.geocode.center;
-                var marker = L.marker(latlng).addTo(map);
-                map.setView(latlng);
-            })
-            .addTo(map)
-            .geocode(direccion);
-        }
-
-        // Función para mostrar/ocultar el filtro de búsqueda
-        function toggleSearch() {
-            var filtroBusqueda = document.getElementById('filtroBusqueda');
-            if (filtroBusqueda.style.display === "none" || filtroBusqueda.style.display === "") {
-                filtroBusqueda.style.display = "block";
-            } else {
-                filtroBusqueda.style.display = "none";
-            }
-        }
-
-
-        // Función para borrar los marcadores del usuario
-        function clearUserMarkers() {
-            userMarkers.forEach(function(marker) {
-                map.removeLayer(marker);
-            });
-            userMarkers = [];
-
-            if (routingControl) {
-                map.removeControl(routingControl);
-                routingControl = null;
-            }
-        }
-    </script>
-      <!--Funcion para si esta autenticado obtenga la ubicación del usruario-->
-      <% if (isAuthenticated) { %>
-          <script>
-            navigator.geolocation.getCurrentPosition(function(position) {
-              userCoordinates = [position.coords.latitude, position.coords.longitude];
-              
-              var userIcon = L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
-                iconSize: [38, 38],
-                iconAnchor: [19, 38],
-                popupAnchor: [0, -38]
-              });
-              
-              var userMarker = L.marker(userCoordinates, { icon: userIcon }).addTo(map);
-              userMarker.bindPopup("Tu ubicación").openPopup();
-            });
-          </script>
-        <% } else { %>
-          <script>
-            alert("Para ver su ubicacion debe registrarse o iniciar sesión");
-          </script>
-        <% } %>
-        <!----->
-
-
-        <script>
-            var cine = L.icon({
-                iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/Popcorn-Cine.png?raw=true',
-                iconSize: [38, 38],
-                iconAnchor: [19, 38],
-                popupAnchor: [0, -38]
-            });
-
-        // Evento de clic en el mapa para agregar marcadores y ruta
-        map.on('click', function(e) {
-            
-            if (userCoordinates) {
-                var secondMarker = L.marker([e.latlng.lat, e.latlng.lng],{icon: cine},options).addTo(map);
-                
-                L.Routing.control({
-                    waypoints: [
-                        L.latLng(userCoordinates[0], userCoordinates[1]), // Coordenadas del usuario
-                        L.latLng(e.latlng.lat, e.latlng.lng)
-                    ]
-                }).addTo(map);
-            } else {
-                  
-                alert("Ubicación del usuario no disponible");
+        var searchControl = L.esri.Geocoding.geosearch().addTo(map);
+        var results = L.layerGroup().addTo(map);
+    
+        searchControl.on('results', function(data) {
+            results.clearLayers();
+            for (var i = data.results.length - 1; i >= 0; i--) {
+                results.addLayer(L.marker(data.results[i].latlng));
             }
         });
+    </script>
+   
+    <% if (isAuthenticated) { %>
+        <script>
+            var userCoordinates = null;
+            navigator.geolocation.getCurrentPosition(function(position) {
+                userCoordinates = [position.coords.latitude, position.coords.longitude];
+                
+                var userIcon = L.icon({
+                    iconUrl: 'https://raw.githubusercontent.com/ChristiMerce/Madpark_PAGT/main/src/views/layouts/images/pingUsuario.png',
+                    iconSize: [25, 25],
+                    iconAnchor: [12, 25],
+                    popupAnchor: [0, -25]
+                });
+                
+                var userMarker = L.marker(userCoordinates, { icon: userIcon }).addTo(map);
+                userMarker.bindPopup("Tu ubicación").openPopup();
+            });
+        </script>
+    <% } else { %>
+        <script>
+            alert("Para ver su ubicación debe registrarse o iniciar sesión");
+        </script>
+    <% } %>
+    <!----->
+    <script>
+        var parkingIcon = L.icon({
+            iconUrl: 'images/aparcamiento.png',
+            iconSize: [12, 12],
+            iconAnchor: [12, 25],
+            popupAnchor: [0, -25]
+        });
+
+
+        var SelectedparkingIcon = L.icon({
+            iconUrl: 'images/selectedParking.png',
+            iconSize: [12, 12],
+            iconAnchor: [12, 25],
+            popupAnchor: [0, -25]
+        });
+
 
      // <---------------------------------------------->
     // Obtener los parkings desde el servidor + popup con info asociada al park
@@ -233,41 +239,194 @@
     fetch('/parkings')
     .then(response => response.json())
     .then(parkings => {
-      // Recorre cada parking
-      parkings.forEach(parking => {
-        // Crea un marcador personalizado
-        const marker = L.marker([parking.LATITUD, parking.LONGITUD]);
-  
-        // Agrega funcionalidad al hacer clic en el marcador
-        marker.on('click', () => {
-          // Crea un elemento para mostrar la información (ej: popup)
-          const popupContent = `
-            <h2>${parking.NOMBRE}</h2>
-            <p>Distrito: ${parking.DISTRITO}</p>
-            <p>Barrio: ${parking.BARRIO}</p>
+        parkings.forEach(parking => {
+            // Verificar el campo TELEFONO
+            const telefonoTexto = parking.TELEFONO && !isNaN(parking.TELEFONO) ? parking.TELEFONO : "No se dispone de telefono de contacto";
+
+            const popupContent = `
+                <h2>${parking.NOMBRE}</h2>
+                <p>Distrito: ${parking.DISTRITO}</p>
+                <p>Barrio: ${parking.BARRIO}</p>
+                <p>Teléfono: ${telefonoTexto}</p>
+                <button class="btn btn-custom-selectD" onclick="mostrarDescripcion('${parking.DESCRIPCION}')">Plazas libres y otra información</button>
+                <div id="descripcion-parking" style="display:none; margin-top:30px;"></div>
+                <button class="btn btn-custom-select" onclick="seleccionarParking('${parking._id}', '${parking.NOMBRE}')">Seleccionar Parking</button>
             `;
-          
-          marker.bindPopup(popupContent).openPopup();
+            
+            const marker = L.marker([parking.LATITUD, parking.LONGITUD], { icon: parkingIcon }).addTo(map);
+            marker.bindPopup(popupContent);
+
+            marker.on('click', (e) => {
+                if (userCoordinates) {
+                    if (!routingControl) {
+                        calculateRoute(userCoordinates, [e.latlng.lat, e.latlng.lng]);
+                    } else {
+                        routingControl.setWaypoints([
+                            L.latLng(userCoordinates[0], userCoordinates[1]), // Ubicación del usuario
+                            L.latLng(e.latlng.lat, e.latlng.lng) // Parking seleccionado
+                        ]);
+                    }
+                } else {
+                    alert("Ubicación del usuario no disponible");
+                }
+                // Cambiar el icono del parking seleccionado
+                e.target.setIcon(SelectedparkingIcon);
+            });
+            marker.addTo(map);
         });
-  
-        // Agrega el marcador al mapa
-        marker.addTo(map);
-      });
     })
     .catch(error => console.error('Error al obtener los parkings:', error));
   
   // <---------------------------------------------->
     
 
-          const options ={
-                  draggable:true
+    // Función para seleccionar un parking
+    function seleccionarParking(parkingId, parkingNombre) {
+        fetch('/seleccionar-parking', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                parkingId: parkingId,
+                parkingNombre: parkingNombre
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Parking ${parkingNombre} seleccionado exitosamente`);
+            } else {
+                alert('Error al seleccionar el parking');
             }
+        })
+        .catch(error => console.error('Error al seleccionar el parking:', error));
+    }
+    // Función para mostrar la descripción del parking
+    function mostrarDescripcion(descripcion) {
+        const descripcionDiv = document.getElementById('descripcion-parking');
+        descripcionDiv.textContent = descripcion;
+        descripcionDiv.style.display = 'block';
+    }
+
+
+    //<----------------------------------------------------------------------------------->
+
+   // Definir el sistema de coordenadas UTM y WGS84
+var utmProj = "+proj=utm +zone=30 +datum=WGS84"; // Ajusta la zona según corresponda
+var wgs84Proj = "+proj=longlat +datum=WGS84 +no_defs";
+
+// Función para convertir UTM a WGS84
+function convertUTMToLatLng(utmX, utmY) {
+    var latlong = proj4(utmProj, wgs84Proj, [utmX, utmY]);
+    return [latlong[1], latlong[0]]; // Retorna [lat, lng]
+}
 
 
 
-      
+// Array para almacenar las coordenadas de la ruta
+var rutaCoordenadas = [];
 
-              
-    </script>
+// Función para añadir coordenadas a la ruta
+function agregarCoordenadaALaRuta(lat, lng) {
+    rutaCoordenadas.push([lat, lng]);
+}
+
+fetch('/traffic')
+    .then(response => {
+        if (!response.ok) {
+            console.error("Error en obtener los datos");
+            throw new Error('Error al obtener datos de tráfico');
+        }
+        return response.json();
+    })
+    .then(traffics => {
+        traffics.forEach(traffic => {
+            const utmX = parseFloat(traffic.st_x.replace(',', '.'));
+            const utmY = parseFloat(traffic.st_y.replace(',', '.'));
+            const latlng = convertUTMToLatLng(utmX, utmY);
+            console.log("Datos de tráfico leídos:", traffic);
+            console.log("Coordenadas convertidas:", latlng);
+
+            
+        });
+    })
+    .catch(error => console.error('Error al obtener datos de tráfico:', error));
+
+
+
+
+    var routingControl;
+
+
+
+
+    let savedRouteGeometry = null; // Variable global para almacenar la geometría de la ruta
+
+function calculateRoute(start, end) {
+    if (!start) {
+        alert("Ubicación del usuario no disponible");
+        return;
+    }
+
+    // Restablecer la ruta existente si hay alguna
+    limpiarRuta();
+
+    // Calcular y mostrar la nueva ruta
+    routingControl = L.Routing.control({
+        waypoints: [
+            L.latLng(start[0], start[1]), // Ubicación del usuario
+            L.latLng(end[0], end[1]) // Parking seleccionado
+        ],
+        routeWhileDragging: true
+    }).addTo(map);
+
+    // Obtener la geometría de la ruta
+    const routes = routingControl.getPlan().routes;
+    if (!routes || routes.length === 0) {
+        console.error("No se encontraron rutas disponibles.");
+        return;
+    }
+
+    // Guardar la geometría de la ruta
+    savedRouteGeometry = routes[0].geometry;
+
+    // Convertir la geometría de la ruta a un conjunto de coordenadas
+    const routeCoordinates = L.Polyline.fromEncoded(savedRouteGeometry).getLatLngs();
+
+    // Mostrar las coordenadas de la ruta en la consola
+    console.log("Coordenadas de la ruta:", routeCoordinates);
+
+}
+
+
+
+
+
+    // Función para limpiar la ruta
+    function limpiarRuta() {
+        console.log("Limpiando ruta...");
+        if (routingControl) {
+            console.log("routingControl existe, removiendo...");
+            routingControl.removeFrom(map); // Usa removeFrom() para eliminar el control de enrutamiento
+            routingControl = null; // Establece routingControl a null después de eliminarlo
+            console.log("Ruta eliminada.");
+        } else {
+            console.log("No hay ruta que limpiar.");
+        }
+    }
+
+
+
+
+
+
+</script>
+
+    
+    
+    
+
 </body>
 </html>
+
