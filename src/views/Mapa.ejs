@@ -148,6 +148,30 @@
         margin-top: 10px; /* Margen superior */
         border-radius: 5px; /* Bordes redondeados */
     }
+    #control-panel {
+            background: #284c61ef;
+            color: white; /* Color del texto */
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            position: absolute;
+            top: 219px;
+            right: 119px; /* Cambiar de right a left */
+            z-index: 1000;
+        }
+        #layer-toggle {
+            position: absolute;
+            top: 219px;
+            right: 119px; /* Cambiar de right a left */
+            z-index: 1100;
+            color: white; /* Color del texto */
+            border: none; /* Sin borde */
+            background: #284c61ef;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
     </style>
 </head>
@@ -156,6 +180,18 @@
  
 
     <div id="map" class="map"></div>
+<button id="layer-toggle" class="layer-toggle">
+    <img src="images/filtrar.png" alt="Icono de capas" style="width: 20px; height: 20px;"> 
+</button>
+
+    <div id="control-panel" style="display: none;">
+        <p> Tráfico </p>
+        <select id="traffic-filter">
+            <option value="0">Fluido</option>
+            <option value="1">Lento</option>
+            <option value="2">Retenciones</option>
+            <option value="3">Congestión</option>
+        </select>
     
 
     <!-- Leaflet JS CDN -->
@@ -303,7 +339,7 @@
         .catch(error => console.error('Error al seleccionar el parking:', error));
     }
     // Función para mostrar la descripción del parking
-    function mostrarDescripcion(descripcion) {
+        function mostrarDescripcion(descripcion) {
         const descripcionDiv = document.getElementById('descripcion-parking');
         descripcionDiv.textContent = descripcion;
         descripcionDiv.style.display = 'block';
@@ -321,7 +357,16 @@ function convertUTMToLatLng(utmX, utmY) {
     var latlong = proj4(utmProj, wgs84Proj, [utmX, utmY]);
     return [latlong[1], latlong[0]]; // Retorna [lat, lng]
 }
-
+// Función para obtener el color del círculo según el NivelServicio
+function getColorByNivelServicio(nivelServicio) {
+            switch (nivelServicio) {
+                case '0': return 'green';     // tráfico fluido
+                case '1': return 'yellow';    // tráfico lento
+                case '2': return 'orange';    // retenciones
+                case '3': return 'red';       // congestión
+                default: return 'gray';     // valor por defecto
+            }
+        }
 
 
 // Array para almacenar las coordenadas de la ruta
@@ -341,17 +386,51 @@ fetch('/traffic')
         return response.json();
     })
     .then(traffics => {
+        //console.log(traffics.length)
         traffics.forEach(traffic => {
+            
             const utmX = parseFloat(traffic.st_x.replace(',', '.'));
             const utmY = parseFloat(traffic.st_y.replace(',', '.'));
             const latlng = convertUTMToLatLng(utmX, utmY);
             console.log("Datos de tráfico leídos:", traffic);
             console.log("Coordenadas convertidas:", latlng);
+            
+                    // Añadir un círculo al mapa para cada punto de tráfico
+                    const circle = L.circle([latlng[0], latlng[1]], {
+                        color: 'transparent',  // Borde transparente
+                        fillColor: getColorByNivelServicio(traffic.nivelServicio),  // Color de relleno según NivelServicio
+                        fillOpacity: 0.5,
+                        radius: 15
+                    }).addTo(map);
+
+                    circle.bindPopup(`
+                        
+                        <p>${traffic.descripcion}<p>
+                        
+                    `);
 
             
+
         });
     })
     .catch(error => console.error('Error al obtener datos de tráfico:', error));
+ 
+    
+       // Controlar el panel desplegable al hacer clic en el botón de capas
+       const layerToggle = document.getElementById('layer-toggle');
+    const controlPanel = document.getElementById('control-panel');
+
+    layerToggle.addEventListener('click', () => {
+    if (controlPanel.style.display === 'none') {
+        controlPanel.style.display = 'block';
+    } else {
+        controlPanel.style.display = 'none';
+    }
+    
+});
+
+
+
 
 
 
