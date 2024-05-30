@@ -372,6 +372,7 @@ function convertUTMToLatLng(utmX, utmY) {
 // Función para obtener el color del círculo según el NivelServicio
 function getColorByNivelServicio(nivelServicio) {
             switch (nivelServicio) {
+                case 'all': return 'Todos';
                 case '0': return 'green';     // tráfico fluido
                 case '1': return 'yellow';    // tráfico lento
                 case '2': return 'orange';    // retenciones
