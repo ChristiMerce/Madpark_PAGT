@@ -155,27 +155,28 @@
     #control-panel {
             background: #284c61ef;
             color: white; /* Color del texto */
-            padding: 8px 15px;
+            padding: 5px 8px;
             border: none;
             border-radius: 5px;
             position: absolute;
-            top: 219px;
-            right: 119px; /* Cambiar de right a left */
+            top: 380px;
+            left: 119px; /* Cambiar de right a left */
             z-index: 1000;
         }
         #layer-toggle {
             position: absolute;
-            top: 219px;
-            right: 119px; /* Cambiar de right a left */
+            top: 330px;
+            left: 125px; /* Cambiar de right a left */
             z-index: 1100;
             color: white; /* Color del texto */
             border: none; /* Sin borde */
             background: #284c61ef;
-            padding: 8px 15px;
+            padding: 2px 8px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
+
 
     </style>
 </head>
@@ -190,13 +191,14 @@
     <img src="images/filtrar.png" alt="Icono de capas" style="width: 20px; height: 20px;"> 
 </button>
 
-    <div id="control-panel" style="display: none;">
+    <div id="control-panel" style="display: none;padding: auto;">
         <p> Tráfico </p>
         <select id="traffic-filter">
             <option value="0">Fluido</option>
             <option value="1">Lento</option>
             <option value="2">Retenciones</option>
             <option value="3">Congestión</option>
+            <option value="all">Todos</option>
         </select>
     
 
@@ -222,10 +224,10 @@
         var parkingLayer = L.layerGroup();
         var allTrafficData = [];
 
-        var map = L.map('map').setView([40.416775, -3.70379], 11); // Centrar en Madrid
+        var map = L.map('map').setView([40.416775, -3.70379], 12); // Centrar en Madrid
 
-        L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            attribution: 'Map data © OpenStreetMap contributors',
             maxZoom: 18
         }).addTo(map);
 
@@ -375,7 +377,7 @@ function getColorByNivelServicio(nivelServicio) {
                 case 'all': return 'Todos';
                 case '0': return 'green';     // tráfico fluido
                 case '1': return 'yellow';    // tráfico lento
-                case '2': return 'orange';    // retenciones
+                case '2': return '#FC9A04';    // retenciones: naranja
                 case '3': return 'red';       // congestión
                 default: return 'gray';     // valor por defecto
             }
@@ -402,6 +404,7 @@ fetch('/traffic')
         allTrafficData = traffics; // Guardar todos los datos de tráfico
        updateTrafficLayer();
     })
+    
     .catch(error => console.error('Error al obtener datos de tráfico:', error));
 
 // Función para actualizar la capa de tráfico
@@ -418,8 +421,8 @@ function updateTrafficLayer() {
             const circle = L.circle([latlng[0], latlng[1]], {
                 color: 'transparent',
                 fillColor: getColorByNivelServicio(traffic.nivelServicio),
-                fillOpacity: 0.5,
-                radius: 15
+                fillOpacity: 0.6,
+                radius: 42
             }).addTo(trafficLayer);
 
             circle.bindPopup(`<p>${traffic.descripcion}</p>`);
@@ -428,7 +431,8 @@ function updateTrafficLayer() {
 
     trafficLayer.addTo(map); // Añadir la capa de tráfico actualizada al mapa
 }
-document.getElementById('traffic-filter').addEventListener('change', updateTrafficLayer);
+
+    document.getElementById('traffic-filter').addEventListener('change', updateTrafficLayer);
     
        // Controlar el panel desplegable al hacer clic en el botón de capas
        const layerToggle = document.getElementById('layer-toggle');
