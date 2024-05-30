@@ -180,6 +180,8 @@
     </style>
 </head>
 <body>
+
+    
    
  
 
@@ -215,6 +217,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.7.5/proj4.js"></script>
 
     <script>
+
+        var trafficLayer = L.layerGroup();
+        var parkingLayer = L.layerGroup();
+        var allTrafficData = [];
+
         var map = L.map('map').setView([40.416775, -3.70379], 11); // Centrar en Madrid
 
         L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -246,7 +253,7 @@
                     popupAnchor: [0, -25]
                 });
                 
-                var userMarker = L.marker(userCoordinates, { icon: userIcon }).addTo(map);
+                var userMarker = L.marker(userCoordinates, { icon: userIcon }).addTo(parkingLayer);
                 userMarker.bindPopup("Tu ubicación").openPopup();
             });
         </script>
@@ -313,7 +320,7 @@
                 // Cambiar el icono del parking seleccionado
                 e.target.setIcon(SelectedparkingIcon);
             });
-            marker.addTo(map);
+            marker.addTo(parkingLayer);
         });
     })
     .catch(error => console.error('Error al obtener los parkings:', error));
@@ -391,35 +398,36 @@ fetch('/traffic')
         return response.json();
     })
     .then(traffics => {
-        //console.log(traffics.length)
-        traffics.forEach(traffic => {
-            
+        allTrafficData = traffics; // Guardar todos los datos de tráfico
+       updateTrafficLayer();
+    })
+    .catch(error => console.error('Error al obtener datos de tráfico:', error));
+
+// Función para actualizar la capa de tráfico
+function updateTrafficLayer() {
+    trafficLayer.clearLayers(); // Limpiar la capa de tráfico actual
+    var selectedLevel = document.getElementById('traffic-filter').value; // Obtener el nivel de servicio seleccionado
+
+    allTrafficData.forEach(traffic => {
+        if (selectedLevel === 'all' || traffic.nivelServicio === selectedLevel) {
             const utmX = parseFloat(traffic.st_x.replace(',', '.'));
             const utmY = parseFloat(traffic.st_y.replace(',', '.'));
             const latlng = convertUTMToLatLng(utmX, utmY);
-            console.log("Datos de tráfico leídos:", traffic);
-            console.log("Coordenadas convertidas:", latlng);
-            
-                    // Añadir un círculo al mapa para cada punto de tráfico
-                    const circle = L.circle([latlng[0], latlng[1]], {
-                        color: 'transparent',  // Borde transparente
-                        fillColor: getColorByNivelServicio(traffic.nivelServicio),  // Color de relleno según NivelServicio
-                        fillOpacity: 0.5,
-                        radius: 15
-                    }).addTo(map);
 
-                    circle.bindPopup(`
-                        
-                        <p>${traffic.descripcion}<p>
-                        
-                    `);
+            const circle = L.circle([latlng[0], latlng[1]], {
+                color: 'transparent',
+                fillColor: getColorByNivelServicio(traffic.nivelServicio),
+                fillOpacity: 0.5,
+                radius: 15
+            }).addTo(trafficLayer);
 
-            
+            circle.bindPopup(`<p>${traffic.descripcion}</p>`);
+        }
+    });
 
-        });
-    })
-    .catch(error => console.error('Error al obtener datos de tráfico:', error));
- 
+    trafficLayer.addTo(map); // Añadir la capa de tráfico actualizada al mapa
+}
+document.getElementById('traffic-filter').addEventListener('change', updateTrafficLayer);
     
        // Controlar el panel desplegable al hacer clic en el botón de capas
        const layerToggle = document.getElementById('layer-toggle');
@@ -500,7 +508,13 @@ function calculateRoute(start, end) {
         }
     }
 
+// Agregar las capas al mapa
+var overlayMaps = {
+    "Tráfico": trafficLayer,
+    "Parkings": parkingLayer
+};
 
+L.control.layers(null, overlayMaps).addTo(map);
 
 
 
